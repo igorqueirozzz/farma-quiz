@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Farma Quiz</string>
+    <!-- Common -->
+    <string name="hi_user">👋 Olá %s,</string>
+    <string name="great_to_see_you_again">Bom te ver novamente!</string>
+    <string name="experience_points">Pontos de experiência</string>
+    <string name="practice_more">💪Pratique mais</string>
+    <string name="keep_studying">✍️ Continue estudando</string>
+    <string name="statistics">Estatísticas</string>
+    <string name="home">Home</string>
+    <string name="skip">Pular</string>
+    <string name="see_explication">Ver explicação</string>
+    <string name="next">Avançar</string>
+    <string name="report_error">Reportar Erro</string>
+    <string name="quiz_game">Quiz Game\n</string>
+    <string name="explication">Explicação</string>
+    <string name="ok">Ok</string>
+    <string name="doContinue">Continuar</string>
+</resources>
