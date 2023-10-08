@@ -14,11 +14,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Visibility
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -29,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -37,8 +39,10 @@ import androidx.compose.ui.unit.dp
 import dev.queiroz.farmaquiz.data.CategoriesDummy
 import dev.queiroz.farmaquiz.model.Answer
 import dev.queiroz.farmaquiz.model.Question
-import dev.queiroz.farmaquiz.ui.theme.DoseDeConhecimentoTheme
+import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 import dev.queiroz.farmaquiz.R
+import dev.queiroz.farmaquiz.constants.TestTags.answerOptionCard
+import dev.queiroz.farmaquiz.constants.TestTags.answersOptionsList
 
 @Composable
 fun QuizQuestionContent(
@@ -57,7 +61,7 @@ fun QuizQuestionContent(
                     .width(200.dp)
                     .height(200.dp),
                 painter = painterResource(id = question.imageResource!!),
-                contentDescription = null,
+                contentDescription = stringResource(R.string.imageContent),
                 contentScale = ContentScale.Crop
             )
         }
@@ -78,7 +82,11 @@ fun QuizAnswerList(
     onSeeExplicationClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyColumn(
+        modifier = modifier
+            .selectableGroup()
+            .testTag(answersOptionsList),
+        verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(items = answers) { answer ->
             QuizAnswerItem(
                 answer = answer,
@@ -117,7 +125,12 @@ fun QuizAnswerItem(
             )
             .fillMaxWidth()
             .animateContentSize()
-            .clickable { onItemClick(answer) }, colors = CardDefaults.cardColors(
+            .testTag(answerOptionCard)
+            .selectable(
+                selected = isSelected,
+                onClick = { onItemClick(answer) }
+            ),
+        colors = CardDefaults.cardColors(
             containerColor = containerColor
         )
     ) {
@@ -163,7 +176,7 @@ fun QuizAnswerItem(
 @Composable
 @Preview(showBackground = true)
 fun QuizQuestionContentPreview() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         Column {
             QuizQuestionContent(
                 question = CategoriesDummy.questions.first()
@@ -175,7 +188,7 @@ fun QuizQuestionContentPreview() {
 @Composable
 @Preview(showSystemUi = true)
 fun QuizAnswerItemPreview() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         Column {
             QuizAnswerItem(
                 answer = CategoriesDummy.questions.first().answers.first(),
@@ -191,7 +204,7 @@ fun QuizAnswerItemPreview() {
 @Composable
 @Preview(showSystemUi = true)
 fun QuizAnswerListPreview() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         Column {
             QuizAnswerList(
                 answers = CategoriesDummy.questions.first().answers,
@@ -202,7 +215,7 @@ fun QuizAnswerListPreview() {
     }
 }
 
-private fun getLetterOption(index: Int): String {
+fun getLetterOption(index: Int): String {
     val options = listOf("A", "B", "C", "D")
     return options[index]
 }

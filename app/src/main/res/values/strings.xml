@@ -16,4 +16,6 @@
     <string name="explication">Explicação</string>
     <string name="ok">Ok</string>
     <string name="doContinue">Continuar</string>
+    <string name="doReturn">Retornar</string>
+    <string name="imageContent">Conteúdo de imagem</string>
 </resources>

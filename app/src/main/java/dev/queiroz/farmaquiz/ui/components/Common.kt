@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.capitalize
@@ -38,8 +39,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.queiroz.farmaquiz.data.CategoriesDummy
 import dev.queiroz.farmaquiz.model.Category
-import dev.queiroz.farmaquiz.ui.theme.DoseDeConhecimentoTheme
+import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 import dev.queiroz.farmaquiz.R
+import dev.queiroz.farmaquiz.constants.TestTags.categoryCardItem
 
 @Composable
 fun UserGreeting(userName: String, modifier: Modifier = Modifier, painter: Painter? = null) {
@@ -78,7 +80,7 @@ fun CategoryCard(
     onItemClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(modifier = modifier.clickable { onItemClick() }) {
+    Card(modifier = modifier.clickable { onItemClick() }.testTag(categoryCardItem)) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Image(
                 modifier = Modifier
@@ -194,7 +196,7 @@ fun DailyCard(modifier: Modifier = Modifier) {
 @Composable
 @Preview(widthDp = 300)
 fun UserGreetingPreview() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         Surface {
             UserGreeting(userName = "preview", painter = painterResource(id = R.drawable.pic_demo))
         }
@@ -205,7 +207,7 @@ fun UserGreetingPreview() {
 @Composable
 @Preview
 fun CategoryCardPreview() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         CategoryCard(category = CategoriesDummy.categories.first(), onItemClick = {})
     }
 }
@@ -213,7 +215,7 @@ fun CategoryCardPreview() {
 @Composable
 @Preview(widthDp = 300)
 fun ExperienceCardPreview() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         ExperienceCard(experiencePoints = 15000, modifier = Modifier.fillMaxWidth())
     }
 }
@@ -221,7 +223,7 @@ fun ExperienceCardPreview() {
 @Composable
 @Preview(widthDp = 300)
 fun DailyCardPreview() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         DailyCard()
     }
 }
@@ -229,7 +231,7 @@ fun DailyCardPreview() {
 @Composable
 @Preview
 fun CategoryCardListPreview() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         CategoryCardList(categories = CategoriesDummy.categories, onItemClick = {})
     }
 }

@@ -26,12 +26,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import dev.queiroz.farmaquiz.ui.theme.DoseDeConhecimentoTheme
+import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 import dev.queiroz.farmaquiz.R
+import dev.queiroz.farmaquiz.constants.TestTags.backButton
+import dev.queiroz.farmaquiz.constants.TestTags.skipButton
 
 @Composable
 fun QuizGameAppBar(
@@ -73,11 +76,14 @@ fun QuizGameBarAction(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        IconButton(onClick = onBackClick) {
-            Icon(imageVector = Icons.Rounded.ChevronLeft, contentDescription = null)
+        IconButton(onClick = onBackClick, modifier = Modifier.testTag(backButton)) {
+            Icon(
+                imageVector = Icons.Rounded.ChevronLeft,
+                contentDescription = stringResource(R.string.doReturn)
+            )
         }
         Text(text = categoryName)
-        TextButton(onClick = onSkipClick) {
+        TextButton(onClick = onSkipClick, modifier = Modifier.testTag(skipButton)) {
             Text(text = stringResource(R.string.skip))
         }
     }
@@ -121,7 +127,7 @@ fun QuizGameBarScore(
 @Composable
 @Preview(showSystemUi = true)
 fun QuizGameBarPreview() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         var currentQuestionIndex by remember {
             mutableIntStateOf(1)
         }

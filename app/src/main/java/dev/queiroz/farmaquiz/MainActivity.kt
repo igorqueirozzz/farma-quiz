@@ -9,14 +9,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import dev.queiroz.farmaquiz.ui.QuizApp
-import dev.queiroz.farmaquiz.ui.theme.DoseDeConhecimentoTheme
+import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            DoseDeConhecimentoTheme {
+            FarmaQuizTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.surface

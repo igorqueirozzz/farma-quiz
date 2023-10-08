@@ -80,6 +80,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.5.2")
     // Navigation
     implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation("androidx.navigation:navigation-testing:$nav_version")
     // Room Database
     implementation("androidx.room:room-runtime:$roomVersion")
     annotationProcessor("androidx.room:room-compiler:$roomVersion")

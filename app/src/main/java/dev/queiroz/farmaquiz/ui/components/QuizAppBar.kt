@@ -25,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -34,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import dev.queiroz.farmaquiz.ui.Home
 import dev.queiroz.farmaquiz.ui.QuizDestination
 import dev.queiroz.farmaquiz.ui.allTabScreens
-import dev.queiroz.farmaquiz.ui.theme.DoseDeConhecimentoTheme
+import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 
 @Composable
 fun QuizAppBar(
@@ -53,7 +52,7 @@ fun QuizAppBar(
         ) {
             allScreens.forEach { screen ->
                 QuizTabItem(
-                    title = stringResource(id = screen.name),
+                    title = screen.name,
                     isSelected = currentScreen == screen,
                     icon = screen.icon,
                     onItemClick = {
@@ -123,7 +122,7 @@ fun QuizTabItem(
 @Composable
 @Preview
 fun QuizAppBarPreview() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         QuizAppBar(allScreens = allTabScreens, currentScreen = Home, onTabClick = {})
     }
 }
@@ -131,7 +130,7 @@ fun QuizAppBarPreview() {
 @Composable
 @Preview(showBackground = true)
 fun QuizTabItemPreview() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         QuizTabItem(
             title = "Preview",
             isSelected = false,

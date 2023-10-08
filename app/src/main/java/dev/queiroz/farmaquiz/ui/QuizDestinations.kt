@@ -10,28 +10,26 @@ import dev.queiroz.farmaquiz.R
 
 interface QuizDestination {
     val route: String
-    val name: Int
+    val name: String
     val icon: ImageVector
 }
 
 object Home : QuizDestination {
     override val route: String = "home"
-    @StringRes
-    override val name: Int = R.string.home
+    override val name: String = "Home"
     override val icon: ImageVector = Icons.Rounded.Home
 }
 
 object Statistics : QuizDestination {
     override val route: String = "statistics"
-    @StringRes
-    override val name: Int = R.string.statistics
+    override val name: String = "Estatísticas"
     override val icon: ImageVector = Icons.Rounded.PieChart
 }
 
 object QuizGame: QuizDestination {
     override val route: String = "quiz_game"
     override val icon: ImageVector = Icons.Rounded.Games
-    override val name: Int = R.string.quiz_game
+    override val name: String = "Quiz Game"
 }
 
 val allTabScreens = listOf(Home, Statistics)

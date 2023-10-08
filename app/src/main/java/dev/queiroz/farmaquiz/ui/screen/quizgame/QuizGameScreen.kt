@@ -40,7 +40,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,11 +47,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import dev.queiroz.farmaquiz.R
+import dev.queiroz.farmaquiz.constants.TestTags.quizScreenFinished
+import dev.queiroz.farmaquiz.constants.TestTags.quizScreenGaming
+import dev.queiroz.farmaquiz.constants.TestTags.quizScreenLoading
 import dev.queiroz.farmaquiz.data.CategoriesDummy
 import dev.queiroz.farmaquiz.model.Answer
 import dev.queiroz.farmaquiz.model.Category
@@ -60,45 +62,55 @@ import dev.queiroz.farmaquiz.model.Question
 import dev.queiroz.farmaquiz.ui.components.QuizAnswerList
 import dev.queiroz.farmaquiz.ui.components.QuizGameAppBar
 import dev.queiroz.farmaquiz.ui.components.QuizQuestionContent
-import dev.queiroz.farmaquiz.ui.theme.DoseDeConhecimentoTheme
+import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun QuizScreen(
     category: Category,
-    modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit,
-    viewModel: QuizGameViewModel
+    state: QuizGameState,
+    onLoadQuestionByCategory: (Category) -> Unit,
+    onSelectAnswer: (Answer?, Question?) -> Unit,
+    onFinishGame: () -> Unit,
+    onResetGame: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val state by viewModel.gameState.collectAsState()
 
     if (state is QuizGameState.Loading) {
-        viewModel.loadQuestionByCategory(category = category)
+        LaunchedEffect(key1 = Unit){
+            onLoadQuestionByCategory(category)
+        }
     }
 
     when (state) {
         is QuizGameState.Loading -> Box(
-            modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
+            modifier = modifier
+                .fillMaxSize()
+                .testTag(quizScreenLoading),
+            contentAlignment = Alignment.Center
         ) { CircularProgressIndicator() }
 
         is QuizGameState.Gaming -> {
-            val gamingState = state as QuizGameState.Gaming
-            QuizGame(category = gamingState.category,
-                questions = gamingState.questions,
-                selectedAnswer = gamingState.selectedAnswer,
+            QuizGame(
+                modifier = modifier,
+                category = state.category,
+                questions = state.questions,
+                selectedAnswer = state.selectedAnswer,
                 onSelectAnswer = { answer, question ->
-                    viewModel.onSelectAnswer(answer, question)
+                    onSelectAnswer(answer, question)
                 },
-                onFinishGame = { viewModel.onFinishGame() }
+                onFinishGame = { onFinishGame() }
             )
         }
 
         is QuizGameState.Finished -> FinishGameScreen(
-            state = state.getAsFinished(),
+            modifier = modifier.testTag(quizScreenFinished),
+            state = state,
             onContinueClick = {
                 onNavigateBack()
-                viewModel.resetGame()
+                onResetGame()
             })
     }
 }
@@ -122,102 +134,92 @@ fun QuizGame(
     val coroutineScope = rememberCoroutineScope()
     var showExplicationDialog by remember { mutableStateOf(false) }
 
+    Scaffold(modifier = modifier.testTag(quizScreenGaming), topBar = {
+        QuizGameAppBar(categoryName = category.name,
+            currentQuestionIndex = (pagerState.currentPage + 1),
+            totalOfQuestions = pagerState.pageCount,
+            onBackClick = { /*TODO*/ },
+            onSkipClick = { /*TODO*/ })
+    }, floatingActionButton = {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            TextButton(onClick = { /*TODO*/ }) {
+                Icon(
+                    imageVector = Icons.Rounded.Report,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(R.string.report_error),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
 
-    LaunchedEffect(key1 = Unit) {
-        delay(50)
-        isVisible = true
-    }
-
-    AnimatedVisibility(
-        visible = isVisible
-    ) {
-        Scaffold(modifier = modifier, topBar = {
-            QuizGameAppBar(categoryName = category.name,
-                currentQuestionIndex = (pagerState.currentPage + 1),
-                totalOfQuestions = pagerState.pageCount,
-                onBackClick = { /*TODO*/ },
-                onSkipClick = { /*TODO*/ })
-        }, floatingActionButton = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom
-            ) {
-                TextButton(onClick = { /*TODO*/ }) {
-                    Icon(
-                        imageVector = Icons.Rounded.Report,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = stringResource(R.string.report_error),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
-                if (selectedAnswer != null) {
-                    Button(modifier = Modifier.height(48.dp), onClick = {
-                        onSelectAnswer(null, null)
-                        if (pagerState.canScrollForward) {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(page = pagerState.currentPage + 1)
-                            }
-                        } else {
-                            onFinishGame()
+            if (selectedAnswer != null) {
+                Button(modifier = Modifier.height(48.dp), onClick = {
+                    onSelectAnswer(null, null)
+                    if (pagerState.canScrollForward) {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(page = pagerState.currentPage + 1)
                         }
-                    }) {
-                        Text(text = stringResource(R.string.next))
-                        Icon(
-                            imageVector = Icons.Rounded.ChevronRight,
-                            contentDescription = null,
-                        )
+                    } else {
+                        onFinishGame()
                     }
+                }) {
+                    Text(text = stringResource(R.string.next))
+                    Icon(
+                        imageVector = Icons.Rounded.ChevronRight,
+                        contentDescription = null,
+                    )
                 }
             }
-        }, floatingActionButtonPosition = FabPosition.Center
-        ) { innerPadding ->
-            HorizontalPager(
-                state = pagerState,
-                userScrollEnabled = false,
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                Column {
-                    val question = questions[it]
+        }
+    }, floatingActionButtonPosition = FabPosition.Center
+    ) { innerPadding ->
+        HorizontalPager(
+            state = pagerState,
+            userScrollEnabled = false,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            Column {
+                val question = questions[it]
 
-                    if (showExplicationDialog) {
-                        ExplicationDialog(
-                            explication = question.explication,
-                            isCorrectAnswer = selectedAnswer!!.isCorrect,
-                            onDismiss = { showExplicationDialog = false },
-                            onConfirm = { showExplicationDialog = false },
-                        )
-                    }
-
-                    QuizQuestionContent(
-                        question = question,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .weight(1f)
-                    )
-
-                    QuizAnswerList(
-                        answers = question.answers,
-                        selectedAnswer = selectedAnswer,
-                        onItemClick = { answer ->
-                            if (selectedAnswer == null) {
-                                onSelectAnswer(answer, question)
-                            }
-                        },
-                        onSeeExplicationClick = { showExplicationDialog = true },
-                        modifier = modifier
-                            .padding(
-                                horizontal = 32.dp
-                            )
-                            .weight(1f)
+                if (showExplicationDialog) {
+                    ExplicationDialog(
+                        explication = question.explication,
+                        isCorrectAnswer = selectedAnswer!!.isCorrect,
+                        onDismiss = { showExplicationDialog = false },
+                        onConfirm = { showExplicationDialog = false },
                     )
                 }
+
+                QuizQuestionContent(
+                    question = question,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .weight(1f)
+                )
+
+                QuizAnswerList(
+                    answers = question.answers,
+                    selectedAnswer = selectedAnswer,
+                    onItemClick = { answer ->
+                        if (selectedAnswer == null) {
+                            onSelectAnswer(answer, question)
+                        }
+                    },
+                    onSeeExplicationClick = { showExplicationDialog = true },
+                    modifier = modifier
+                        .padding(
+                            horizontal = 32.dp
+                        )
+                        .weight(1f)
+                )
             }
         }
     }
@@ -342,11 +344,15 @@ fun ExplicationDialog(
 @Composable
 @Preview
 fun QuizScreenPreview() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         QuizScreen(
             category = CategoriesDummy.categories.first(),
             onNavigateBack = {},
-            viewModel = hiltViewModel()
+            state = QuizGameState.Loading,
+            onFinishGame = {},
+            onLoadQuestionByCategory = {},
+            onResetGame = {},
+            onSelectAnswer = { _, _ -> }
         )
     }
 }
@@ -354,7 +360,7 @@ fun QuizScreenPreview() {
 @Composable
 @Preview(showSystemUi = true)
 fun FinishedGamePreview() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         FinishGameScreen(
             state = QuizGameState.Finished(
                 message = "Test",

@@ -12,23 +12,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dev.queiroz.farmaquiz.ui.components.QuizAppBar
 import dev.queiroz.farmaquiz.ui.components.QuizNavHost
-import dev.queiroz.farmaquiz.ui.theme.DoseDeConhecimentoTheme
+import dev.queiroz.farmaquiz.ui.screen.quizgame.QuizGameViewModel
+import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizApp() {
-    DoseDeConhecimentoTheme {
+    FarmaQuizTheme {
         val navHostController = rememberNavController()
         val navBackStack by navHostController.currentBackStackEntryAsState()
         val allScreens = remember { allTabScreens }
         val currentScreen = allScreens.find { it.route == navBackStack?.destination?.route } ?: Home
-
         var showAppBar by remember { mutableStateOf(true) }
+
+        val quizGameViewModel = hiltViewModel<QuizGameViewModel>()
 
         Surface(modifier = Modifier.fillMaxSize()) {
             Scaffold(
@@ -47,7 +50,8 @@ fun QuizApp() {
                 QuizNavHost(
                     modifier = Modifier.padding(innerPadding),
                     navController = navHostController,
-                    onRequestChangeAppBar = { showAppBar = it }
+                    onRequestChangeAppBar = { showAppBar = it },
+                    quizGameViewModel = quizGameViewModel
                 )
             }
         }
