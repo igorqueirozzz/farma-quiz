@@ -3,12 +3,17 @@ package dev.queiroz.farmaquiz.ui.screen.quizgame
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.queiroz.farmaquiz.data.CategoriesDummy
+import dev.queiroz.farmaquiz.data.repository.CategoryRepository
+import dev.queiroz.farmaquiz.data.repository.CategoryScoreRepository
+import dev.queiroz.farmaquiz.data.repository.QuestionRepository
 import dev.queiroz.farmaquiz.model.Answer
 import dev.queiroz.farmaquiz.model.Category
+import dev.queiroz.farmaquiz.model.CategoryScore
 import dev.queiroz.farmaquiz.model.Question
+import dev.queiroz.farmaquiz.model.QuestionWithAnswers
 import dev.queiroz.farmaquiz.model.enum.Difficult
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -17,12 +22,12 @@ import javax.inject.Inject
 sealed interface QuizGameState {
     data class Gaming(
         val category: Category,
-        val questions: List<Question>,
+        val questions: Flow<List<QuestionWithAnswers>>,
         val selectedAnswer: Answer? = null
     ) : QuizGameState {
         fun update(
             categoryNew: Category? = null,
-            questionsNew: List<Question>? = null,
+            questionsNew: Flow<List<QuestionWithAnswers>>? = null,
             selectedAnswerNew: Answer? = null
         ): Gaming {
             return Gaming(
@@ -42,26 +47,37 @@ sealed interface QuizGameState {
         val score: Int
     ) : QuizGameState
 
-    fun getAsGaming(): Gaming = this@QuizGameState as Gaming
-    fun getAsFinished(): Finished = this@QuizGameState as Finished
 }
 
 @HiltViewModel
-class QuizGameViewModel @Inject constructor() : ViewModel() {
+class QuizGameViewModel @Inject constructor(
+    private val questionRepository: QuestionRepository,
+    private val categoryRepository: CategoryRepository,
+    private val categoryScoreRepository: CategoryScoreRepository
+) : ViewModel() {
+
+    private var questionsWithAnswers: Flow<List<QuestionWithAnswers>> =
+        MutableStateFlow(emptyList())
+
     private val _gameState = MutableStateFlow<QuizGameState>(QuizGameState.Loading)
     val gameState = _gameState.asStateFlow()
 
-    private var answeredQuestions: Int = 0
-    private var score: Int = 10
+    private var answeredQuestions: MutableList<Question> = mutableListOf()
+    private var score: Int = 0
 
-    fun loadQuestionByCategory(category: Category) {
-        answeredQuestions = 0
-        viewModelScope.launch {
-            delay(1000)
+    private var categoryScore: CategoryScore? = null
+    private var category: Category? = null
+
+    fun loadQuestionByCategory(categoryId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            questionsWithAnswers =
+                questionRepository.getQuestionsWithAnswersByCategoryStream(categoryId)
+            category = categoryRepository.findById(categoryId)
             _gameState.value = QuizGameState.Gaming(
-                category = category,
-                questions = CategoriesDummy.questions.filter { it.categoryId == category.id }.take(3)
+                category = category!!,
+                questions = questionsWithAnswers
             )
+            categoryScore = categoryScoreRepository.getByCategory(categoryId = categoryId)
         }
     }
 
@@ -70,29 +86,44 @@ class QuizGameViewModel @Inject constructor() : ViewModel() {
             selectedAnswerNew = answer
         )
         if (answer?.isCorrect == true) {
-            answeredQuestions++
-            score += when (question?.difficult) {
+            question?.alreadyAnswered = true
+            answeredQuestions.add(question!!)
+
+            score += when (question.difficult) {
                 Difficult.easy -> 5
                 Difficult.medium -> 10
                 Difficult.hard -> 20
-                else -> 0
             }
         }
     }
 
     fun onFinishGame() {
-        val totalOfQuestions = _gameState.value.getAsGaming().questions.size
+        viewModelScope.launch {
+            questionRepository.updateAll(answeredQuestions)
+            if (categoryScore != null) {
+                categoryScore!!.score += score
+                categoryScoreRepository.update(categoryScore = categoryScore!!)
+            } else {
+                categoryScoreRepository.insert(
+                    categoryScore = CategoryScore(
+                        categoryId = category!!.id,
+                        score = score
+                    )
+                )
+            }
+        }
+        val totalOfQuestions = 20
         _gameState.value = QuizGameState.Finished(
             message = "Fim de jogo.",
-            answeredQuestions = answeredQuestions,
+            answeredQuestions = answeredQuestions.size,
             totalOfQuestions = totalOfQuestions,
             score = score
         )
     }
 
-    fun resetGame(){
+    fun resetGame() {
         _gameState.value = QuizGameState.Loading
         score = 0
-        answeredQuestions = 0
+        answeredQuestions.clear()
     }
 }

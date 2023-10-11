@@ -2,6 +2,7 @@
 
 package dev.queiroz.farmaquiz.ui.screen.quizgame
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -20,8 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Cancel
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Report
 import androidx.compose.material.icons.rounded.Star
@@ -40,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,18 +47,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import dev.queiroz.farmaquiz.R
 import dev.queiroz.farmaquiz.constants.TestTags.quizScreenFinished
 import dev.queiroz.farmaquiz.constants.TestTags.quizScreenGaming
 import dev.queiroz.farmaquiz.constants.TestTags.quizScreenLoading
-import dev.queiroz.farmaquiz.data.CategoriesDummy
+import dev.queiroz.farmaquiz.data.datasource.dummy.CategoriesDummy
 import dev.queiroz.farmaquiz.model.Answer
 import dev.queiroz.farmaquiz.model.Category
 import dev.queiroz.farmaquiz.model.Question
+import dev.queiroz.farmaquiz.model.QuestionWithAnswers
 import dev.queiroz.farmaquiz.ui.components.QuizAnswerList
 import dev.queiroz.farmaquiz.ui.components.QuizGameAppBar
 import dev.queiroz.farmaquiz.ui.components.QuizQuestionContent
@@ -68,10 +72,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun QuizScreen(
-    category: Category,
+    categoryId: String,
     onNavigateBack: () -> Unit,
     state: QuizGameState,
-    onLoadQuestionByCategory: (Category) -> Unit,
+    onLoadQuestionByCategory: (String) -> Unit,
     onSelectAnswer: (Answer?, Question?) -> Unit,
     onFinishGame: () -> Unit,
     onResetGame: () -> Unit,
@@ -79,8 +83,8 @@ fun QuizScreen(
 ) {
 
     if (state is QuizGameState.Loading) {
-        LaunchedEffect(key1 = Unit){
-            onLoadQuestionByCategory(category)
+        LaunchedEffect(key1 = Unit) {
+            onLoadQuestionByCategory(categoryId)
         }
     }
 
@@ -93,15 +97,19 @@ fun QuizScreen(
         ) { CircularProgressIndicator() }
 
         is QuizGameState.Gaming -> {
+            val questionsWithAnswers by state.questions.collectAsState(initial = emptyList())
             QuizGame(
                 modifier = modifier,
                 category = state.category,
-                questions = state.questions,
+                questionsWithAnswers = questionsWithAnswers,
                 selectedAnswer = state.selectedAnswer,
                 onSelectAnswer = { answer, question ->
                     onSelectAnswer(answer, question)
                 },
-                onFinishGame = { onFinishGame() }
+                onFinishGame = { onFinishGame() },
+                onExitGame = {
+                    onNavigateBack()
+                }
             )
         }
 
@@ -110,7 +118,6 @@ fun QuizScreen(
             state = state,
             onContinueClick = {
                 onNavigateBack()
-                onResetGame()
             })
     }
 }
@@ -119,27 +126,40 @@ fun QuizScreen(
 @Composable
 fun QuizGame(
     category: Category,
-    questions: List<Question>,
+    questionsWithAnswers: List<QuestionWithAnswers>,
     onSelectAnswer: (Answer?, Question?) -> Unit,
     modifier: Modifier = Modifier,
     selectedAnswer: Answer? = null,
-    onFinishGame: () -> Unit
+    onFinishGame: () -> Unit,
+    onExitGame: () -> Unit
 ) {
-    var isVisible by remember { mutableStateOf(false) }
-
     val pagerState = rememberPagerState {
-        questions.size
+        questionsWithAnswers.size
     }
 
     val coroutineScope = rememberCoroutineScope()
     var showExplicationDialog by remember { mutableStateOf(false) }
+    var showExitGameDialog by remember { mutableStateOf(false) }
+
+    BackHandler {
+        showExitGameDialog = !showExitGameDialog
+    }
 
     Scaffold(modifier = modifier.testTag(quizScreenGaming), topBar = {
         QuizGameAppBar(categoryName = category.name,
             currentQuestionIndex = (pagerState.currentPage + 1),
             totalOfQuestions = pagerState.pageCount,
-            onBackClick = { /*TODO*/ },
-            onSkipClick = { /*TODO*/ })
+            onBackClick = { showExitGameDialog = true },
+            onSkipClick = {
+                onSelectAnswer(null, null)
+                if (pagerState.canScrollForward) {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(page = pagerState.currentPage + 1)
+                    }
+                } else {
+                    onFinishGame()
+                }
+            })
     }, floatingActionButton = {
         Row(
             modifier = Modifier
@@ -187,39 +207,57 @@ fun QuizGame(
             modifier = Modifier.padding(innerPadding)
         ) {
             Column {
-                val question = questions[it]
 
-                if (showExplicationDialog) {
-                    ExplicationDialog(
-                        explication = question.explication,
-                        isCorrectAnswer = selectedAnswer!!.isCorrect,
-                        onDismiss = { showExplicationDialog = false },
-                        onConfirm = { showExplicationDialog = false },
+                if (questionsWithAnswers.isNotEmpty()) {
+                    val question = questionsWithAnswers[it]
+                    if (showExplicationDialog) {
+                        val containerColor =
+                            if (selectedAnswer?.isCorrect == true) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.errorContainer
+                        val contentColor = Color.White
+                        QuizDialog(
+                            title = stringResource(id = R.string.explication),
+                            text = question.question.explication,
+                            onDismiss = { showExplicationDialog = false },
+                            onConfirm = { showExplicationDialog = false },
+                            containerColor = containerColor,
+                            contentColor = contentColor
+                        )
+                    }
+                    if (showExitGameDialog) {
+
+                        QuizDialog(
+                            title = "Aviso",
+                            text = "Deseja sair do jogo? \nTodo o progresso será perdido.",
+                            onDismiss = { showExitGameDialog = false },
+                            onConfirm = {
+                                onExitGame()
+                            })
+
+                    }
+
+                    QuizQuestionContent(
+                        questionWithAnswers = question,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .weight(1f)
+                    )
+
+                    QuizAnswerList(
+                        answers = question.answers,
+                        selectedAnswer = selectedAnswer,
+                        onItemClick = { answer ->
+                            if (selectedAnswer == null) {
+                                onSelectAnswer(answer, question.question)
+                            }
+                        },
+                        onSeeExplicationClick = { showExplicationDialog = true },
+                        modifier = modifier
+                            .padding(
+                                horizontal = 32.dp
+                            )
+                            .weight(1f)
                     )
                 }
-
-                QuizQuestionContent(
-                    question = question,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .weight(1f)
-                )
-
-                QuizAnswerList(
-                    answers = question.answers,
-                    selectedAnswer = selectedAnswer,
-                    onItemClick = { answer ->
-                        if (selectedAnswer == null) {
-                            onSelectAnswer(answer, question)
-                        }
-                    },
-                    onSeeExplicationClick = { showExplicationDialog = true },
-                    modifier = modifier
-                        .padding(
-                            horizontal = 32.dp
-                        )
-                        .weight(1f)
-                )
             }
         }
     }
@@ -311,32 +349,53 @@ fun FinishGameScreen(
 }
 
 @Composable
-fun ExplicationDialog(
-    explication: String, isCorrectAnswer: Boolean, onDismiss: () -> Unit, onConfirm: () -> Unit
+fun QuizDialog(
+    title: String,
+    text: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+    modifier: Modifier = Modifier,
+    imageVector: ImageVector? = null,
+    containerColor: Color? = null,
+    contentColor: Color? = null,
+    showCancelButton: Boolean? = true,
+    dialogProperties: DialogProperties? = null,
+    centerContent: @Composable (() -> Unit)? = null,
 ) {
-    val containerColor =
-        if (isCorrectAnswer) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
-    val contentColor =
-        if (isCorrectAnswer) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
     AlertDialog(
+        properties = dialogProperties ?: DialogProperties(),
+        modifier = modifier,
+        dismissButton = {
+            if (showCancelButton == true) {
+                TextButton(onClick = onDismiss, modifier = Modifier.padding(end = 16.dp)) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+            }
+        },
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(text = stringResource(R.string.ok))
+            Button(onClick = onConfirm, modifier = Modifier.padding(start = 16.dp)) {
+                Text(text = stringResource(R.string.confirm))
             }
         },
         icon = {
-            Icon(
-                imageVector = if (isCorrectAnswer) Icons.Rounded.CheckCircle else Icons.Rounded.Cancel,
-                contentDescription = null
-            )
+            if (imageVector != null)
+                Icon(
+                    imageVector = imageVector,
+                    contentDescription = null
+                )
         },
-        title = { Text(text = stringResource(R.string.explication)) },
-        text = { Text(text = explication) },
-        containerColor = containerColor,
-        iconContentColor = contentColor,
-        titleContentColor = contentColor,
-        textContentColor = contentColor
+        title = { Text(text = title) },
+        text = {
+            Column {
+                Text(text = text)
+                centerContent?.invoke()
+            }
+        },
+        containerColor = containerColor ?: MaterialTheme.colorScheme.surface,
+        iconContentColor = contentColor ?: MaterialTheme.colorScheme.onSurface,
+        titleContentColor = contentColor ?: MaterialTheme.colorScheme.onSurface,
+        textContentColor = contentColor ?: MaterialTheme.colorScheme.onSurface
     )
 }
 
@@ -346,7 +405,7 @@ fun ExplicationDialog(
 fun QuizScreenPreview() {
     FarmaQuizTheme {
         QuizScreen(
-            category = CategoriesDummy.categories.first(),
+            categoryId = CategoriesDummy.categories.first().id,
             onNavigateBack = {},
             state = QuizGameState.Loading,
             onFinishGame = {},

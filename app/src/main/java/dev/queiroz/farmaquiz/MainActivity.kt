@@ -13,8 +13,13 @@ import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    companion object {
+        var PACKAGE_NAME = ""
+            private set
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        PACKAGE_NAME = packageName
         setContent {
             FarmaQuizTheme {
                 Surface(

@@ -11,7 +11,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import dev.queiroz.farmaquiz.constants.TestTags.backButton
 import dev.queiroz.farmaquiz.constants.TestTags.skipButton
-import dev.queiroz.farmaquiz.data.CategoriesDummy
+import dev.queiroz.farmaquiz.data.datasource.dummy.CategoriesDummy
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

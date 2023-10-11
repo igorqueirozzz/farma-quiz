@@ -1,5 +1,7 @@
 package dev.queiroz.farmaquiz.ui.components
 
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,11 +25,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -37,11 +41,12 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import dev.queiroz.farmaquiz.data.CategoriesDummy
-import dev.queiroz.farmaquiz.model.Category
-import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 import dev.queiroz.farmaquiz.R
 import dev.queiroz.farmaquiz.constants.TestTags.categoryCardItem
+import dev.queiroz.farmaquiz.data.datasource.dummy.CategoriesDummy
+import dev.queiroz.farmaquiz.extensions.getDrawableIdentifier
+import dev.queiroz.farmaquiz.model.Category
+import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 
 @Composable
 fun UserGreeting(userName: String, modifier: Modifier = Modifier, painter: Painter? = null) {
@@ -80,14 +85,16 @@ fun CategoryCard(
     onItemClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(modifier = modifier.clickable { onItemClick() }.testTag(categoryCardItem)) {
+    Card(modifier = modifier
+        .clickable { onItemClick() }
+        .testTag(categoryCardItem)) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Image(
                 modifier = Modifier
                     .size(50.dp)
                     .clip(shape = MaterialTheme.shapes.medium),
                 contentScale = ContentScale.Crop,
-                painter = painterResource(id = category.imageId),
+                painter = painterResource(id = LocalContext.current.getDrawableIdentifier(category.imageName)),
                 contentDescription = null
             )
             Column(
@@ -100,7 +107,10 @@ fun CategoryCard(
                     style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.tertiary)
                 )
 
-                Text(text = "20 questões restantes", style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = "${category.remainingQuestions} questões restantes",
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
 
             Icon(imageVector = Icons.Filled.ChevronRight, contentDescription = null)
@@ -124,17 +134,29 @@ fun CategoryCardList(
         ),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(items = categories) { category ->
-            CategoryCard(category = category, onItemClick = { onItemClick(category) })
+        if (categories.isEmpty()) {
+            item {
+                Text(text = "Nenhuma informação encontrada.")
+            }
+        } else {
+            items(items = categories) { category ->
+                CategoryCard(category = category, onItemClick = { onItemClick(category) })
+            }
         }
     }
 }
 
 @Composable
 fun ExperienceCard(experiencePoints: Int, modifier: Modifier = Modifier) {
+    val animatedValue by animateIntAsState(
+        targetValue = experiencePoints,
+        label = "",
+        animationSpec = tween(durationMillis = 500)
+    )
+
     Card(
         modifier = modifier.fillMaxWidth(), colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
         )
     ) {
         Row(
@@ -152,7 +174,7 @@ fun ExperienceCard(experiencePoints: Int, modifier: Modifier = Modifier) {
 
             Column(modifier = Modifier.padding(start = 16.dp)) {
                 Text(
-                    text = experiencePoints.toString(),
+                    text = animatedValue.toString(),
                     style = MaterialTheme.typography.titleLarge
                 )
 

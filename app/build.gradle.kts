@@ -56,6 +56,8 @@ dependencies {
     val hilt_version = "2.44"
     val nav_version = "2.7.3"
     val roomVersion = "2.4.1"
+    val datastore_version = "1.0.0"
+    val compose_livedata_version = "1.5.3"
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -68,14 +70,14 @@ dependencies {
 
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
     // ViewModel utilities for Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
+    implementation("androidx.compose.runtime:runtime-livedata:$compose_livedata_version")
     // Dagger Hilt
     implementation("com.google.dagger:hilt-android:$hilt_version")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
-    // Coil (Image Loader)
-    implementation("io.coil-kt:coil:2.4.0")
     // Material Icons Extended
     implementation("androidx.compose.material:material-icons-extended:1.5.2")
     // Navigation
@@ -83,8 +85,11 @@ dependencies {
     implementation("androidx.navigation:navigation-testing:$nav_version")
     // Room Database
     implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
     annotationProcessor("androidx.room:room-compiler:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
+    // Data Store
+    implementation("androidx.datastore:datastore-preferences:$datastore_version")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

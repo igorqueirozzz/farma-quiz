@@ -30,23 +30,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import dev.queiroz.farmaquiz.data.CategoriesDummy
-import dev.queiroz.farmaquiz.model.Answer
-import dev.queiroz.farmaquiz.model.Question
-import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 import dev.queiroz.farmaquiz.R
 import dev.queiroz.farmaquiz.constants.TestTags.answerOptionCard
 import dev.queiroz.farmaquiz.constants.TestTags.answersOptionsList
+import dev.queiroz.farmaquiz.data.datasource.dummy.CategoriesDummy
+import dev.queiroz.farmaquiz.extensions.getDrawableIdentifier
+import dev.queiroz.farmaquiz.model.Answer
+import dev.queiroz.farmaquiz.model.QuestionWithAnswers
+import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 
 @Composable
 fun QuizQuestionContent(
-    question: Question, modifier: Modifier = Modifier
+    questionWithAnswers: QuestionWithAnswers, modifier: Modifier = Modifier
 ) {
 
     Column(
@@ -54,20 +56,24 @@ fun QuizQuestionContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        val hasImage = question.imageResource != null
+        val hasImage = questionWithAnswers.question.imageResource != null
         if (hasImage) {
             Image(
                 modifier = Modifier
                     .width(200.dp)
                     .height(200.dp),
-                painter = painterResource(id = question.imageResource!!),
+                painter = painterResource(
+                    id = LocalContext.current.getDrawableIdentifier(
+                        questionWithAnswers.question.imageResource!!
+                    )
+                ),
                 contentDescription = stringResource(R.string.imageContent),
                 contentScale = ContentScale.Crop
             )
         }
 
         Text(
-            text = question.question,
+            text = questionWithAnswers.question.question,
             textAlign = TextAlign.Center,
             style = if (hasImage) MaterialTheme.typography.titleMedium else MaterialTheme.typography.displayMedium
         )
@@ -86,7 +92,8 @@ fun QuizAnswerList(
         modifier = modifier
             .selectableGroup()
             .testTag(answersOptionsList),
-        verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         items(items = answers) { answer ->
             QuizAnswerItem(
                 answer = answer,
@@ -109,8 +116,7 @@ fun QuizAnswerItem(
     modifier: Modifier = Modifier
 ) {
     val containerColor by animateColorAsState(
-        targetValue = if (isSelected && answer.isCorrect)
-            MaterialTheme.colorScheme.primaryContainer
+        targetValue = if (isSelected && answer.isCorrect) MaterialTheme.colorScheme.primaryContainer
         else if (isSelected && !answer.isCorrect) MaterialTheme.colorScheme.error
         else MaterialTheme.colorScheme.tertiaryContainer,
         label = "",
@@ -126,10 +132,7 @@ fun QuizAnswerItem(
             .fillMaxWidth()
             .animateContentSize()
             .testTag(answerOptionCard)
-            .selectable(
-                selected = isSelected,
-                onClick = { onItemClick(answer) }
-            ),
+            .selectable(selected = isSelected, onClick = { onItemClick(answer) }),
         colors = CardDefaults.cardColors(
             containerColor = containerColor
         )
@@ -179,7 +182,7 @@ fun QuizQuestionContentPreview() {
     FarmaQuizTheme {
         Column {
             QuizQuestionContent(
-                question = CategoriesDummy.questions.first()
+                questionWithAnswers = CategoriesDummy.questions.first()
             )
         }
     }
@@ -190,13 +193,11 @@ fun QuizQuestionContentPreview() {
 fun QuizAnswerItemPreview() {
     FarmaQuizTheme {
         Column {
-            QuizAnswerItem(
-                answer = CategoriesDummy.questions.first().answers.first(),
+            QuizAnswerItem(answer = CategoriesDummy.questions.first().answers.first(),
                 onItemClick = {},
                 answerIndex = 0,
                 isSelected = true,
-                onSeeExplicationClick = {}
-            )
+                onSeeExplicationClick = {})
         }
     }
 }
@@ -206,11 +207,9 @@ fun QuizAnswerItemPreview() {
 fun QuizAnswerListPreview() {
     FarmaQuizTheme {
         Column {
-            QuizAnswerList(
-                answers = CategoriesDummy.questions.first().answers,
+            QuizAnswerList(answers = CategoriesDummy.questions.first().answers,
                 onItemClick = {},
-                onSeeExplicationClick = {}
-            )
+                onSeeExplicationClick = {})
         }
     }
 }

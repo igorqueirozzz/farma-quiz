@@ -18,4 +18,12 @@
     <string name="doContinue">Continuar</string>
     <string name="doReturn">Retornar</string>
     <string name="imageContent">Conteúdo de imagem</string>
+    <string name="confirm">Confirmar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="welcome_message_one"><![CDATA[Nossa missão é oferecer uma experiência de aprendizado envolvente e divertida, através de quizzes interativos que desafiam mentes, testam conhecimentos e despertam a curiosidade.]]></string>
+    <string name="welcome_message_two"><![CDATA[Teste seus conhecimentos, desafie sua mente e mergulhe na diversão! Pronto para aceitar o desafio ?]]></string>
+    <string name="how_about_introducing_yourself">Que tal se apresentar?</string>
+    <string name="type_your_name">Digite seu nome</string>
+    <string name="welcome_to">Bem-vindo ao</string>
+    <string name="welcome_choice_message">Estamos empolgados por você ter escolhido nosso aplicativo.</string>
 </resources>

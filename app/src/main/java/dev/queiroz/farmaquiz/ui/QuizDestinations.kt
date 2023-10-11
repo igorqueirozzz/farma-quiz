@@ -28,6 +28,7 @@ object Statistics : QuizDestination {
 
 object QuizGame: QuizDestination {
     override val route: String = "quiz_game"
+    const val routeWithArg: String = "quiz_game/{categoryId}"
     override val icon: ImageVector = Icons.Rounded.Games
     override val name: String = "Quiz Game"
 }

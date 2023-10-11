@@ -17,7 +17,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import dev.queiroz.farmaquiz.constants.TestTags.answerOptionCard
 import dev.queiroz.farmaquiz.constants.TestTags.answersOptionsList
-import dev.queiroz.farmaquiz.data.CategoriesDummy
+import dev.queiroz.farmaquiz.data.datasource.dummy.CategoriesDummy
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 import org.junit.Rule
 import org.junit.Test
@@ -35,7 +35,7 @@ class QuizGameContentTest {
     @Test
     fun quizGameContent_shows_question_text() {
         composeTestRule.setContent {
-            QuizQuestionContent(question = question)
+            QuizQuestionContent(questionWithAnswers = question)
         }
         composeTestRule
             .onNodeWithText(question.question)
@@ -46,7 +46,7 @@ class QuizGameContentTest {
     @Test
     fun quizGameContent_shows_image() {
         composeTestRule.setContent {
-            QuizQuestionContent(question = question)
+            QuizQuestionContent(questionWithAnswers = question)
         }
 
         composeTestRule

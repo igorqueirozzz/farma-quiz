@@ -1,23 +1,18 @@
 package dev.queiroz.farmaquiz.model
 
-import androidx.annotation.DrawableRes
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.Relation
 import dev.queiroz.farmaquiz.data.TableNames
 import dev.queiroz.farmaquiz.model.enum.Difficult
 
-@Entity(tableName = TableNames.question)
+@Entity(tableName = TableNames.QUESTION)
 data class Question(
     @PrimaryKey(autoGenerate = false)
-    val id: String,
-    val question: String,
-    @Relation(parentColumn = "id", entityColumn = "questionId")
-    val answers: List<Answer>,
-    val categoryId: String,
-    val alreadyAnswered: Boolean,
-    @DrawableRes
-    val imageResource: Int? = null,
-    val explication: String,
-    val difficult: Difficult
+    var id: String = "",
+    var question: String = "",
+    var categoryId: String = "",
+    var alreadyAnswered: Boolean = false,
+    var imageResource: String? = null,
+    var explication: String = "",
+    var difficult: Difficult = Difficult.easy
 )
