@@ -11,6 +11,7 @@ import dev.queiroz.farmaquiz.constants.TestTags.quizScreenLoading
 import dev.queiroz.farmaquiz.data.datasource.dummy.CategoriesDummy
 import dev.queiroz.farmaquiz.ui.screen.quizgame.QuizGameState
 import dev.queiroz.farmaquiz.ui.screen.quizgame.QuizScreen
+import kotlinx.coroutines.flow.flow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,7 +30,7 @@ class QuizScreenTest {
             .setContent {
                 val state = QuizGameState.Loading
                 QuizScreen(
-                    category = category,
+                    categoryId = category.id,
                     onNavigateBack = { },
                     state = state,
                     onLoadQuestionByCategory = {},
@@ -49,14 +50,16 @@ class QuizScreenTest {
         composeTestRule
             .setContent {
                 QuizScreen(
-                    category = category,
+                    categoryId = category.id,
                     onNavigateBack = {},
                     state = state,
                     onLoadQuestionByCategory = {
                         Thread.sleep(100)
                         state = QuizGameState.Gaming(
-                            category = it,
-                            questions = CategoriesDummy.questions.filter { q -> q.categoryId == category.id }
+                            category = category,
+                            questions = flow {
+                                emit(emptyList())
+                            }
                         )
                     },
                     onSelectAnswer = { _, _ -> },

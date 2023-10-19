@@ -7,6 +7,8 @@ interface CategoryRepository {
 
     suspend fun insert(category: Category)
 
+    suspend fun insertAll(categories: List<Category>)
+
     suspend fun update(category: Category)
 
     suspend fun delete(category: Category)

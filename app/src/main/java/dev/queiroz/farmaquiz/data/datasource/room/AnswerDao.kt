@@ -13,10 +13,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AnswerDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(answer: Answer)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(answers: List<Answer>)
 
     @Update

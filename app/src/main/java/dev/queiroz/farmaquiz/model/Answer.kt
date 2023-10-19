@@ -6,7 +6,7 @@ import dev.queiroz.farmaquiz.data.TableNames
 
 @Entity(tableName = TableNames.ANSWER)
 data class Answer(
-    @PrimaryKey(autoGenerate = false) var id: String,
+    @PrimaryKey(autoGenerate = false) var id: String = "",
     var text: String,
     var isCorrect: Boolean,
     var questionId: String

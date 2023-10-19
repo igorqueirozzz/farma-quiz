@@ -68,6 +68,7 @@ import dev.queiroz.farmaquiz.ui.components.QuizGameAppBar
 import dev.queiroz.farmaquiz.ui.components.QuizQuestionContent
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 @Composable
@@ -212,7 +213,7 @@ fun QuizGame(
                     val question = questionsWithAnswers[it]
                     if (showExplicationDialog) {
                         val containerColor =
-                            if (selectedAnswer?.isCorrect == true) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.errorContainer
+                            if (selectedAnswer?.isCorrect == true) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                         val contentColor = Color.White
                         QuizDialog(
                             title = stringResource(id = R.string.explication),
@@ -220,7 +221,8 @@ fun QuizGame(
                             onDismiss = { showExplicationDialog = false },
                             onConfirm = { showExplicationDialog = false },
                             containerColor = containerColor,
-                            contentColor = contentColor
+                            contentColor = contentColor,
+                            showCancelButton = false
                         )
                     }
                     if (showExitGameDialog) {
@@ -255,7 +257,7 @@ fun QuizGame(
                             .padding(
                                 horizontal = 32.dp
                             )
-                            .weight(1f)
+                            .weight(1.7f)
                     )
                 }
             }
@@ -374,7 +376,7 @@ fun QuizDialog(
         },
         onDismissRequest = onDismiss,
         confirmButton = {
-            Button(onClick = onConfirm, modifier = Modifier.padding(start = 16.dp)) {
+            ElevatedButton(onClick = onConfirm, modifier = Modifier.padding(start = 16.dp)) {
                 Text(text = stringResource(R.string.confirm))
             }
         },
@@ -407,7 +409,10 @@ fun QuizScreenPreview() {
         QuizScreen(
             categoryId = CategoriesDummy.categories.first().id,
             onNavigateBack = {},
-            state = QuizGameState.Loading,
+            state = QuizGameState.Gaming(
+                category = CategoriesDummy.categories.first(),
+                questions = flow { emit(CategoriesDummy.questions) }
+            ),
             onFinishGame = {},
             onLoadQuestionByCategory = {},
             onResetGame = {},

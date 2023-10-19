@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -11,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "dev.queiroz.farmaquiz"
-        minSdk = 21
+        minSdk = 26
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -52,12 +53,13 @@ android {
 }
 
 dependencies {
-    val lifecycle_version = "2.6.1"
-    val hilt_version = "2.44"
-    val nav_version = "2.7.3"
+    val lifecycleVersion = "2.6.1"
+    val hiltVersion = "2.44"
+    val navVersion = "2.7.3"
     val roomVersion = "2.4.1"
-    val datastore_version = "1.0.0"
-    val compose_livedata_version = "1.5.3"
+    val datastoreVersion = "1.0.0"
+    val composeLivedataVersion = "1.5.3"
+    val firestoreVersion = "24.8.1"
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -69,27 +71,29 @@ dependencies {
     implementation("androidx.compose.material3:material3")
 
     // ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
     // ViewModel utilities for Compose
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
-    implementation("androidx.compose.runtime:runtime-livedata:$compose_livedata_version")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
+    implementation("androidx.compose.runtime:runtime-livedata:$composeLivedataVersion")
     // Dagger Hilt
-    implementation("com.google.dagger:hilt-android:$hilt_version")
+    implementation("com.google.dagger:hilt-android:$hiltVersion")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-    kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
+    kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
     // Material Icons Extended
     implementation("androidx.compose.material:material-icons-extended:1.5.2")
     // Navigation
-    implementation("androidx.navigation:navigation-compose:$nav_version")
-    implementation("androidx.navigation:navigation-testing:$nav_version")
+    implementation("androidx.navigation:navigation-compose:$navVersion")
+    implementation("androidx.navigation:navigation-testing:$navVersion")
     // Room Database
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     annotationProcessor("androidx.room:room-compiler:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
     // Data Store
-    implementation("androidx.datastore:datastore-preferences:$datastore_version")
+    implementation("androidx.datastore:datastore-preferences:$datastoreVersion")
+    // Firebase Firestore
+    implementation("com.google.firebase:firebase-firestore-ktx:$firestoreVersion")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

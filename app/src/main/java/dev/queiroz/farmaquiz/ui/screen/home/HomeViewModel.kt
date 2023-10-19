@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.queiroz.farmaquiz.data.datasource.firestore.FirestoreQuizDataSource
 import dev.queiroz.farmaquiz.data.repository.AnswerRepository
 import dev.queiroz.farmaquiz.data.repository.CategoryRepository
 import dev.queiroz.farmaquiz.data.repository.CategoryScoreRepository
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 sealed interface HomeState {
@@ -41,21 +43,9 @@ class HomeViewModel @Inject constructor(
     private val questionRepository: QuestionRepository,
     private val answerRepository: AnswerRepository,
     private val playerRepository: PlayerRepository,
-    private val categoryScoreRepository: CategoryScoreRepository
+    private val categoryScoreRepository: CategoryScoreRepository,
+    private val firestoreQuizDataSource: FirestoreQuizDataSource
 ) : ViewModel() {
-    /*init {
-        viewModelScope.launch {
-            categoryRepository.insert(
-                category = Category(
-                    id = "first",
-                    name = "Química Farmacêutica",
-                    imageName = "pic_chemical_demo"
-                )
-            )
-            questionRepository.insertAll(CategoriesDummy.questions.map { it.question })
-            answerRepository.insertAll(CategoriesDummy.answers)
-        }
-    }*/
 
     val userPreferences: LiveData<UserPreferences> =
         userPreferencesRepository.userPreferencesFlow.asLiveData()
@@ -85,9 +75,35 @@ class HomeViewModel @Inject constructor(
             playerRepository.insert(player = Player(name = userName.trim()))
             userPreferencesRepository.updateUserPreferences(
                 userPreferences = UserPreferences(
-                    userName = userName, themeMode = ThemeMode.AUTO, isFirstLaunch = false
+                    userName = userName,
+                    themeMode = ThemeMode.AUTO,
+                    isFirstLaunch = false,
+                    LocalDate.now()
                 )
             )
         }
+    }
+
+    fun updateDatabase(onUpdateComplete: (Boolean) -> Unit) {
+        firestoreQuizDataSource.updateCategoriesWithFirestoreData { success ->
+            onUpdateComplete(success)
+            viewModelScope.launch {
+                userPreferences.value.let {
+                    it!!
+                    userPreferencesRepository.updateUserPreferences(
+                        userPreferences = UserPreferences(
+                            userName = it.userName,
+                            themeMode = it.themeMode,
+                            isFirstLaunch = it.isFirstLaunch,
+                            lastDataUpdate = LocalDate.now()
+                        )
+                    )
+                }
+            }
+        }
+
+        firestoreQuizDataSource.updateQuestionsWithFirestoreData { }
+
+        firestoreQuizDataSource.updateAnswersWithFirestoreData { }
     }
 }

@@ -29,8 +29,8 @@ class QuizGameContentTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
-    private val question = CategoriesDummy.questions.first { it.imageResource != null }
-    private val answers = CategoriesDummy.answers.filter { it.questionId == question.id }
+    private val question = CategoriesDummy.questions.first { it.question.imageResource != null }
+    private val answers = CategoriesDummy.answers.filter { it.questionId == question.question.id }
 
     @Test
     fun quizGameContent_shows_question_text() {
@@ -38,7 +38,7 @@ class QuizGameContentTest {
             QuizQuestionContent(questionWithAnswers = question)
         }
         composeTestRule
-            .onNodeWithText(question.question)
+            .onNodeWithText(question.question.question)
             .assertIsDisplayed()
 
     }

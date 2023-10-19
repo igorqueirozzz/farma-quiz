@@ -26,4 +26,8 @@
     <string name="type_your_name">Digite seu nome</string>
     <string name="welcome_to">Bem-vindo ao</string>
     <string name="welcome_choice_message">Estamos empolgados por você ter escolhido nosso aplicativo.</string>
+    <string name="msg_failure_to_get_new_data">Falha ao recuperar novos dados, verifique sua conexão com a internet e tente novamente.</string>
+    <string name="try_again">Tentar novamente</string>
+    <string name="msg_connection_error">Falha ao atualizar a base de dados, verifique sua conexão e tente novamente.</string>
+    <string name="msg_updating_database">Atualizando base de conhecimento... 😎</string>
 </resources>

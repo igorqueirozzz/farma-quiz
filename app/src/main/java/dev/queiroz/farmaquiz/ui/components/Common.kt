@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.rounded.Error
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -214,6 +217,42 @@ fun DailyCard(modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+fun ErrorScreen(
+    message: String,
+    modifier: Modifier = Modifier,
+    content: (@Composable () -> Unit)?
+) {
+    Column(
+        modifier = modifier.fillMaxSize().padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Icon(
+            modifier = Modifier.size(150.dp),
+            imageVector = Icons.Rounded.Error,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.error
+        )
+
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer
+            )
+        ) {
+            Text(
+                modifier = Modifier.padding(16.dp),
+                text = message,
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+
+        if (content != null) {
+            content()
+        }
+    }
+}
+
 
 @Composable
 @Preview(widthDp = 300)
@@ -255,5 +294,17 @@ fun DailyCardPreview() {
 fun CategoryCardListPreview() {
     FarmaQuizTheme {
         CategoryCardList(categories = CategoriesDummy.categories, onItemClick = {})
+    }
+}
+
+@Composable
+@Preview(showSystemUi = true)
+fun ErrorScreenPreview() {
+    FarmaQuizTheme {
+        ErrorScreen(message = "Conection error, Please try again") {
+            Button(onClick = { /*TODO*/ }) {
+                Text(text = "Try Again")
+            }
+        }
     }
 }

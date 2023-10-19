@@ -8,6 +8,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.queiroz.farmaquiz.constants.DataStoreConstants.USER_PREFERENCES
+import dev.queiroz.farmaquiz.data.datasource.firestore.FirestoreQuizDataSource
+import dev.queiroz.farmaquiz.data.datasource.firestore.FirestoreQuizDataSourceImpl
 import dev.queiroz.farmaquiz.data.datasource.room.QuizDataBase
 import dev.queiroz.farmaquiz.data.repository.AnswerRepository
 import dev.queiroz.farmaquiz.data.repository.CategoryRepository
@@ -60,6 +62,20 @@ object AppModule {
         PlayerOfflineRepository(playerDao = dataBase.playerDao())
 
     @Provides
+    @Singleton
     fun providerCategoryScoreRepository(dataBase: QuizDataBase): CategoryScoreRepository =
         CategoryScoreOfflineRepository(categoryScoreDao = dataBase.categoryScoreDao())
+
+    @Provides
+    @Singleton
+    fun providesFirestoreQuizDataSource(
+        categoryRepository: CategoryRepository,
+        questionRepository: QuestionRepository,
+        answerRepository: AnswerRepository
+    ): FirestoreQuizDataSource =
+        FirestoreQuizDataSourceImpl(
+            categoryRepository = categoryRepository,
+            questionRepository = questionRepository,
+            answerRepository = answerRepository
+        )
 }

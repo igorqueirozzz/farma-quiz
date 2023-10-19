@@ -5,13 +5,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -20,19 +24,34 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dev.queiroz.farmaquiz.R
 import dev.queiroz.farmaquiz.model.ThemeMode
+import dev.queiroz.farmaquiz.ui.components.ErrorScreen
 import dev.queiroz.farmaquiz.ui.components.QuizAppBar
 import dev.queiroz.farmaquiz.ui.components.QuizNavHost
 import dev.queiroz.farmaquiz.ui.screen.home.HomeViewModel
 import dev.queiroz.farmaquiz.ui.screen.quizgame.QuizGameViewModel
 import dev.queiroz.farmaquiz.ui.screen.welcome.WelcomeScreen
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
+import java.time.LocalDate
+
+private sealed interface QuizAppState {
+    object Loading : QuizAppState
+
+    object UpdatingDataBase : QuizAppState
+
+    object UpdateError : QuizAppState
+
+    object Loaded : QuizAppState
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,15 +59,102 @@ fun QuizApp() {
 
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val quizGameViewModel = hiltViewModel<QuizGameViewModel>()
-
     val userPreferences by homeViewModel.userPreferences.observeAsState()
+    var quizAppState by remember {
+        mutableStateOf<QuizAppState>(
+            QuizAppState.Loading
+        )
+    }
 
-    if (userPreferences == null) {
-        FarmaQuizTheme {
+    if (quizAppState is QuizAppState.Loading && userPreferences != null) {
+
+        val today = LocalDate.now()
+        val lastUpdateDate = (userPreferences!!.lastDataUpdate ?: LocalDate.now())
+        val daysAfterUpdate = lastUpdateDate.plusDays(30)
+        if (userPreferences!!.isFirstLaunch || today.isAfter(daysAfterUpdate)) {
+            quizAppState = QuizAppState.UpdatingDataBase
+
+            homeViewModel.updateDatabase { success ->
+                quizAppState = if (success) QuizAppState.Loaded else QuizAppState.UpdateError
+            }
+
+        } else if(userPreferences?.isFirstLaunch == false && quizAppState !is QuizAppState.Loaded) {
+            quizAppState = QuizAppState.Loaded
+        }
+    }
+
+
+    when (quizAppState) {
+        is QuizAppState.Loading ->
+            SplashLoadingScreen()
+
+
+        is QuizAppState.UpdatingDataBase ->
+            SplashLoadingScreen(loadingMessage = stringResource(R.string.msg_updating_database))
+
+        is QuizAppState.UpdateError ->
+            ErrorScreen(message = stringResource(R.string.msg_connection_error)) {
+                Button(onClick = { quizAppState = QuizAppState.Loading }) {
+                    Text(text = stringResource(R.string.try_again))
+                }
+            }
+
+        is QuizAppState.Loaded -> {
+            FarmaQuizTheme(
+                darkTheme = if (userPreferences!!.themeMode == ThemeMode.AUTO) isSystemInDarkTheme() else userPreferences!!.themeMode == ThemeMode.DARK
+            ) {
+                val navHostController = rememberNavController()
+                val navBackStack by navHostController.currentBackStackEntryAsState()
+                val allScreens = remember { allTabScreens }
+                val currentScreen =
+                    allScreens.find { it.route == navBackStack?.destination?.route } ?: Home
+                var showAppBar by remember { mutableStateOf(true) }
+
+                 if (userPreferences?.isFirstLaunch == true) {
+                    WelcomeScreen(
+                        onUserPassWelcomeScreen = homeViewModel::onFinishWelcomeScreen
+                    )
+                } else {
+                    Surface(modifier = Modifier.fillMaxSize()) {
+                        Scaffold(
+                            topBar = {
+                                AnimatedVisibility(visible = showAppBar) {
+                                    QuizAppBar(
+                                        allScreens = allScreens,
+                                        currentScreen = currentScreen,
+                                        onTabClick = {
+                                            navHostController.navigateSingleTop(route = it.route)
+                                        }
+                                    )
+                                }
+                            }
+                        ) { innerPadding ->
+                            QuizNavHost(
+                                modifier = Modifier.padding(innerPadding),
+                                navController = navHostController,
+                                onRequestChangeAppBar = { showAppBar = it },
+                                quizGameViewModel = quizGameViewModel,
+                                homeViewModel = homeViewModel
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+}
+
+@Composable
+fun SplashLoadingScreen(
+    modifier: Modifier = Modifier,
+    loadingMessage: String? = null,
+) {
+    FarmaQuizTheme(darkTheme = isSystemInDarkTheme()) {
+        Surface {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.primary),
+                modifier = modifier
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -56,47 +162,21 @@ fun QuizApp() {
                     painter = painterResource(id = R.drawable.farma_quiz_logo),
                     contentDescription = null
                 )
-            }
-        }
-    } else {
-        FarmaQuizTheme(
-            darkTheme = if (userPreferences!!.themeMode == ThemeMode.AUTO) isSystemInDarkTheme() else userPreferences!!.themeMode == ThemeMode.DARK
-        ) {
-            val navHostController = rememberNavController()
-            val navBackStack by navHostController.currentBackStackEntryAsState()
-            val allScreens = remember { allTabScreens }
-            val currentScreen =
-                allScreens.find { it.route == navBackStack?.destination?.route } ?: Home
-            var showAppBar by remember { mutableStateOf(true) }
 
-            if (userPreferences?.isFirstLaunch == true) {
-                WelcomeScreen(
-                    onUserPassWelcomeScreen = homeViewModel::onFinishWelcomeScreen
-                )
-            } else {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    Scaffold(
-                        topBar = {
-                            AnimatedVisibility(visible = showAppBar) {
-                                QuizAppBar(
-                                    allScreens = allScreens,
-                                    currentScreen = currentScreen,
-                                    onTabClick = {
-                                        navHostController.navigateSingleTop(route = it.route)
-                                    }
-                                )
-                            }
-                        }
-                    ) { innerPadding ->
-                        QuizNavHost(
-                            modifier = Modifier.padding(innerPadding),
-                            navController = navHostController,
-                            onRequestChangeAppBar = { showAppBar = it },
-                            quizGameViewModel = quizGameViewModel,
-                            homeViewModel = homeViewModel
-                        )
-                    }
+                if (!loadingMessage.isNullOrEmpty()) {
+                    Text(
+                        modifier = Modifier.padding(top = 16.dp),
+                        text = loadingMessage,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
+
+                CircularProgressIndicator(
+                    modifier = Modifier.padding(top = 16.dp),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
             }
         }
     }
@@ -107,6 +187,7 @@ fun NavHostController.navigateSingleTop(route: String) {
         launchSingleTop = true
     }
 }
+
 fun NavHostController.navigateSingleTopWithStringArg(route: String, arg: String) {
     this.navigate(route = "$route/$arg") {
         launchSingleTop = true

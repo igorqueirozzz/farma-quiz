@@ -24,7 +24,7 @@ class QuizGameAppBarTest {
     val composeTestRule = createComposeRule()
 
     private val category = CategoriesDummy.categories.first()
-    private val questions = CategoriesDummy.questions.filter { it.categoryId == category.id }
+    private val questions = CategoriesDummy.questions.filter { it.question.categoryId == category.id }
     val TAG = "QuizGameAppBarTest"
 
     @Test

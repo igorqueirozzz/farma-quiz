@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "481044047680",
+    "project_id": "farma-quiz-app",
+    "storage_bucket": "farma-quiz-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:481044047680:android:4d50d3571df2350126bca5",
+        "android_client_info": {
+          "package_name": "dev.queiroz.farmaquiz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWa62TLJHXsB2rbX1Ok1Kfhdgra-csxxU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

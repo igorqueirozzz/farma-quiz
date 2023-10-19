@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -140,8 +141,8 @@ fun QuizAnswerItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(60.dp)
-                .padding(horizontal = 16.dp),
+                .defaultMinSize(minHeight = 60.dp)
+                .padding(horizontal = 16.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
@@ -196,7 +197,7 @@ fun QuizAnswerItemPreview() {
             QuizAnswerItem(answer = CategoriesDummy.questions.first().answers.first(),
                 onItemClick = {},
                 answerIndex = 0,
-                isSelected = true,
+                isSelected = false,
                 onSeeExplicationClick = {})
         }
     }
