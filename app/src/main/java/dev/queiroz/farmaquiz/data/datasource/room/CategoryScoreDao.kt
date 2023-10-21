@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import dev.queiroz.farmaquiz.data.TableNames.CATEGORY_SCORE
 import dev.queiroz.farmaquiz.model.CategoryScore
+import dev.queiroz.farmaquiz.model.CategoryWithCategoryScore
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -19,7 +20,7 @@ interface CategoryScoreDao {
     suspend fun update(categoryScore: CategoryScore)
 
     @Query("SELECT * FROM $CATEGORY_SCORE")
-    fun getAll(): Flow<List<CategoryScore>>
+    fun getAll(): Flow<List<CategoryWithCategoryScore>>
 
     @Query("SELECT * FROM $CATEGORY_SCORE WHERE categoryId = :categoryId")
     fun getByCategory(categoryId: String): CategoryScore?

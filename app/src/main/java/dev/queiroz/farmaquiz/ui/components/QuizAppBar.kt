@@ -48,8 +48,10 @@ fun QuizAppBar(
             .height(56.dp)
     ) {
         Row(
-            modifier = Modifier.selectableGroup(), verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.selectableGroup(),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
+
             allScreens.forEach { screen ->
                 QuizTabItem(
                     title = screen.name,
@@ -59,6 +61,7 @@ fun QuizAppBar(
                         onTabClick(screen)
                     })
             }
+
         }
     }
 }

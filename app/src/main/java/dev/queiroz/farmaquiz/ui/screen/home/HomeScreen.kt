@@ -1,5 +1,6 @@
 package dev.queiroz.farmaquiz.ui.screen.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
@@ -8,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -17,22 +19,22 @@ import androidx.compose.ui.unit.dp
 import dev.queiroz.farmaquiz.R
 import dev.queiroz.farmaquiz.extensions.getDrawableIdentifier
 import dev.queiroz.farmaquiz.model.Category
-import dev.queiroz.farmaquiz.model.Player
 import dev.queiroz.farmaquiz.ui.Home
 import dev.queiroz.farmaquiz.ui.components.CategoryCardList
 import dev.queiroz.farmaquiz.ui.components.DailyCard
 import dev.queiroz.farmaquiz.ui.components.ExperienceCard
 import dev.queiroz.farmaquiz.ui.components.UserGreeting
+import dev.queiroz.farmaquiz.ui.screen.viewmodel.HomeState
 
 @Composable
 fun HomeScreen(
     state: HomeState,
     onCategorySelected: (Category) -> Unit,
+    onMiscellaneousClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (state) {
         is HomeState.LoadedState -> {
-            val player by state.player.collectAsState(initial = Player(name = ""))
             val categoriesScores by state.categoriesScores.collectAsState(initial = emptyList())
             Column(
                 modifier = modifier
@@ -41,7 +43,7 @@ fun HomeScreen(
             ) {
 
                 UserGreeting(
-                    userName = player.name,
+                    userName = state.userName,
                     painter = painterResource(
                         id = LocalContext.current.getDrawableIdentifier("training_brain")
                     )
@@ -57,7 +59,9 @@ fun HomeScreen(
                     text = stringResource(R.string.practice_more),
                     style = MaterialTheme.typography.titleLarge
                 )
-                DailyCard()
+                DailyCard(
+                    modifier = Modifier.clickable { onMiscellaneousClick() }
+                )
 
                 Text(
                     modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),

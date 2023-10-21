@@ -9,8 +9,8 @@ import dev.queiroz.farmaquiz.model.enum.Difficult
 object CategoriesDummy {
     val categories = listOf<Category>(
         Category(id = "1", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
-        Category(id = "2", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
-        Category(id = "3", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
+        Category(id = "2", name = "Test 1 Farmacêutica", imageName = "pic_chemical_demo"),
+        Category(id = "3", name = "test 2 Farmacêutica", imageName = "pic_chemical_demo"),
         Category(id = "4", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
         Category(id = "5", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
         Category(id = "6", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),

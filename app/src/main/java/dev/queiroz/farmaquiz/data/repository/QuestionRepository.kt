@@ -16,6 +16,9 @@ interface QuestionRepository {
     suspend fun delete(question: Question)
 
     fun getAllStream(): Flow<List<Question>>
+    fun getAllQuestionsWithAnswers(): List<QuestionWithAnswers>
 
     fun getQuestionsWithAnswersByCategoryStream(categoryId: String): Flow<List<QuestionWithAnswers>>
+
+    fun getQuestionsWithAnswersByCategory(categoryId: String): List<QuestionWithAnswers>
 }

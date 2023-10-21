@@ -8,12 +8,10 @@ import dev.queiroz.farmaquiz.data.repository.CategoryScoreRepository
 import dev.queiroz.farmaquiz.data.repository.QuestionRepository
 import dev.queiroz.farmaquiz.model.Answer
 import dev.queiroz.farmaquiz.model.Category
-import dev.queiroz.farmaquiz.model.CategoryScore
 import dev.queiroz.farmaquiz.model.Question
 import dev.queiroz.farmaquiz.model.QuestionWithAnswers
 import dev.queiroz.farmaquiz.model.enum.Difficult
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -22,12 +20,12 @@ import javax.inject.Inject
 sealed interface QuizGameState {
     data class Gaming(
         val category: Category,
-        val questions: Flow<List<QuestionWithAnswers>>,
+        val questions: List<QuestionWithAnswers>,
         val selectedAnswer: Answer? = null
     ) : QuizGameState {
         fun update(
             categoryNew: Category? = null,
-            questionsNew: Flow<List<QuestionWithAnswers>>? = null,
+            questionsNew: List<QuestionWithAnswers>? = null,
             selectedAnswerNew: Answer? = null
         ): Gaming {
             return Gaming(
@@ -38,13 +36,22 @@ sealed interface QuizGameState {
         }
     }
 
+    data class RandomGaming(
+        val questions: List<QuestionWithAnswers>, val selectedAnswer: Answer? = null
+    ) : QuizGameState {
+        fun update(
+            questionsNew: List<QuestionWithAnswers>? = null, selectedAnswerNew: Answer? = null
+        ): RandomGaming {
+            return RandomGaming(
+                questions = questionsNew ?: this.questions, selectedAnswer = selectedAnswerNew
+            )
+        }
+    }
+
     object Loading : QuizGameState
 
     data class Finished(
-        val message: String,
-        val answeredQuestions: Int,
-        val totalOfQuestions: Int,
-        val score: Int
+        val message: String, val answeredQuestions: Int, val totalOfQuestions: Int, val score: Int
     ) : QuizGameState
 
 }
@@ -56,35 +63,61 @@ class QuizGameViewModel @Inject constructor(
     private val categoryScoreRepository: CategoryScoreRepository
 ) : ViewModel() {
 
-    private var questionsWithAnswers: Flow<List<QuestionWithAnswers>> =
-        MutableStateFlow(emptyList())
-
     private val _gameState = MutableStateFlow<QuizGameState>(QuizGameState.Loading)
     val gameState = _gameState.asStateFlow()
 
     private var answeredQuestions: MutableList<Question> = mutableListOf()
     private var score: Int = 0
 
-    private var categoryScore: CategoryScore? = null
     private var category: Category? = null
 
     fun loadQuestionByCategory(categoryId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            questionsWithAnswers =
-                questionRepository.getQuestionsWithAnswersByCategoryStream(categoryId)
+
             category = categoryRepository.findById(categoryId)
-            _gameState.value = QuizGameState.Gaming(
-                category = category!!,
-                questions = questionsWithAnswers
-            )
-            categoryScore = categoryScoreRepository.getByCategory(categoryId = categoryId)
+
+            val dbQuestions = questionRepository.getQuestionsWithAnswersByCategory(categoryId)
+
+
+            val questions =
+                dbQuestions.filter { !it.question.alreadyAnswered }.take(20).toMutableList()
+
+            _gameState.value =
+                QuizGameState.Gaming(category = category!!, questions = questions.also {
+                    if (it.size < 20) {
+                        it.addAll(dbQuestions.filter { filter -> filter.question.alreadyAnswered }
+                            .take(20 - it.size))
+                    }
+                })
+
+        }
+    }
+
+    fun loadQuestionRandomly() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val dbQuestions = questionRepository.getAllQuestionsWithAnswers()
+
+            val questions =
+                dbQuestions.filter { !it.question.alreadyAnswered }.take(20).toMutableList()
+
+            _gameState.value = QuizGameState.RandomGaming(
+                questions = questions.also {
+                    if (it.size < 20) {
+                        it.addAll(dbQuestions.filter { filter -> filter.question.alreadyAnswered }
+                            .take(20 - it.size))
+                    }
+                })
         }
     }
 
     fun onSelectAnswer(answer: Answer?, question: Question?) {
-        _gameState.value = (gameState.value as QuizGameState.Gaming).update(
-            selectedAnswerNew = answer
-        )
+        _gameState.value =
+            if (gameState.value is QuizGameState.Gaming) (gameState.value as QuizGameState.Gaming).update(
+                selectedAnswerNew = answer
+            ) else (gameState.value as QuizGameState.RandomGaming).update(
+                selectedAnswerNew = answer
+            )
+
         if (answer?.isCorrect == true) {
             question?.alreadyAnswered = true
             answeredQuestions.add(question!!)
@@ -98,18 +131,25 @@ class QuizGameViewModel @Inject constructor(
     }
 
     fun onFinishGame() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             questionRepository.updateAll(answeredQuestions)
-            if (categoryScore != null) {
-                categoryScore!!.score += score
-                categoryScoreRepository.update(categoryScore = categoryScore!!)
-            } else {
-                categoryScoreRepository.insert(
-                    categoryScore = CategoryScore(
-                        categoryId = category!!.id,
-                        score = score
-                    )
+
+            if (_gameState.value is QuizGameState.Gaming) {
+
+                categoryScoreRepository.updateOrCreateByCategoryId(
+                    categoryId = category!!.id, score = score
                 )
+
+            } else {
+                answeredQuestions.forEach { question ->
+                    categoryScoreRepository.updateOrCreateByCategoryId(
+                        categoryId = question.categoryId, score = when (question.difficult) {
+                            Difficult.easy -> 5
+                            Difficult.medium -> 10
+                            Difficult.hard -> 20
+                        }
+                    )
+                }
             }
         }
         val totalOfQuestions = 20

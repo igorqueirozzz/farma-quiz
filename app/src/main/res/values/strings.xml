@@ -30,4 +30,14 @@
     <string name="try_again">Tentar novamente</string>
     <string name="msg_connection_error">Falha ao atualizar a base de dados, verifique sua conexão e tente novamente.</string>
     <string name="msg_updating_database">Atualizando base de conhecimento... 😎</string>
+    <string name="miscellaneous">Diversas</string>
+    <string name="name">Nome</string>
+    <string name="auto">Automático</string>
+    <string name="light">Claro</string>
+    <string name="dark">Escuro</string>
+    <string name="dynamic">Dinâmico</string>
+    <string name="theme">Tema</string>
+    <string name="save">Salvar</string>
+    <string name="preferences_saved">Preferências salvas com sucesso</string>
+    <string name="your_experience_by_category">Sua experiência por categoria</string>
 </resources>

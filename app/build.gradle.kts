@@ -60,6 +60,7 @@ dependencies {
     val datastoreVersion = "1.0.0"
     val composeLivedataVersion = "1.5.3"
     val firestoreVersion = "24.8.1"
+    val ychartsVersion = "2.1.0"
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -94,6 +95,8 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:$datastoreVersion")
     // Firebase Firestore
     implementation("com.google.firebase:firebase-firestore-ktx:$firestoreVersion")
+    // YCharts
+    implementation("co.yml:ycharts:$ychartsVersion")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

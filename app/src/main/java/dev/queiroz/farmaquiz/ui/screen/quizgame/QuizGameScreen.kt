@@ -39,7 +39,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,24 +67,32 @@ import dev.queiroz.farmaquiz.ui.components.QuizGameAppBar
 import dev.queiroz.farmaquiz.ui.components.QuizQuestionContent
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 @Composable
 fun QuizScreen(
-    categoryId: String,
+    categoryId: String?,
     onNavigateBack: () -> Unit,
     state: QuizGameState,
     onLoadQuestionByCategory: (String) -> Unit,
+    onLoadRandomGaming: () -> Unit,
     onSelectAnswer: (Answer?, Question?) -> Unit,
     onFinishGame: () -> Unit,
-    onResetGame: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
-    if (state is QuizGameState.Loading) {
+    var isComposableStarting by remember {
+        mutableStateOf(true)
+    }
+
+    if (state is QuizGameState.Loading && isComposableStarting) {
         LaunchedEffect(key1 = Unit) {
-            onLoadQuestionByCategory(categoryId)
+            if (categoryId.isNullOrBlank()) {
+                onLoadRandomGaming()
+            } else {
+                onLoadQuestionByCategory(categoryId)
+            }
+            isComposableStarting = false
         }
     }
 
@@ -97,13 +104,23 @@ fun QuizScreen(
             contentAlignment = Alignment.Center
         ) { CircularProgressIndicator() }
 
-        is QuizGameState.Gaming -> {
-            val questionsWithAnswers by state.questions.collectAsState(initial = emptyList())
+        is QuizGameState.Finished -> FinishGameScreen(
+            modifier = modifier.testTag(quizScreenFinished),
+            state = state,
+            onContinueClick = {
+                onNavigateBack()
+            })
+
+        else -> {
+            val questionsWithAnswers =
+                if (state is QuizGameState.Gaming) state.questions else (state as QuizGameState.RandomGaming).questions
+            val selectedAnswer =
+                if (state is QuizGameState.Gaming) state.selectedAnswer else (state as QuizGameState.RandomGaming).selectedAnswer
             QuizGame(
                 modifier = modifier,
-                category = state.category,
+                category = if (state is QuizGameState.Gaming) state.category else null,
                 questionsWithAnswers = questionsWithAnswers,
-                selectedAnswer = state.selectedAnswer,
+                selectedAnswer = selectedAnswer,
                 onSelectAnswer = { answer, question ->
                     onSelectAnswer(answer, question)
                 },
@@ -113,20 +130,13 @@ fun QuizScreen(
                 }
             )
         }
-
-        is QuizGameState.Finished -> FinishGameScreen(
-            modifier = modifier.testTag(quizScreenFinished),
-            state = state,
-            onContinueClick = {
-                onNavigateBack()
-            })
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun QuizGame(
-    category: Category,
+    category: Category?,
     questionsWithAnswers: List<QuestionWithAnswers>,
     onSelectAnswer: (Answer?, Question?) -> Unit,
     modifier: Modifier = Modifier,
@@ -147,7 +157,8 @@ fun QuizGame(
     }
 
     Scaffold(modifier = modifier.testTag(quizScreenGaming), topBar = {
-        QuizGameAppBar(categoryName = category.name,
+        QuizGameAppBar(
+            categoryName = category?.name ?: stringResource(R.string.miscellaneous),
             currentQuestionIndex = (pagerState.currentPage + 1),
             totalOfQuestions = pagerState.pageCount,
             onBackClick = { showExitGameDialog = true },
@@ -305,7 +316,8 @@ fun FinishGameScreen(
         Icon(
             modifier = Modifier.size(starAnimation),
             imageVector = Icons.Rounded.Star,
-            contentDescription = null
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
         )
 
 
@@ -411,12 +423,12 @@ fun QuizScreenPreview() {
             onNavigateBack = {},
             state = QuizGameState.Gaming(
                 category = CategoriesDummy.categories.first(),
-                questions = flow { emit(CategoriesDummy.questions) }
+                questions = CategoriesDummy.questions
             ),
-            onFinishGame = {},
             onLoadQuestionByCategory = {},
-            onResetGame = {},
-            onSelectAnswer = { _, _ -> }
+            onLoadRandomGaming = {},
+            onSelectAnswer = { _, _ -> },
+            onFinishGame = {}
         )
     }
 }

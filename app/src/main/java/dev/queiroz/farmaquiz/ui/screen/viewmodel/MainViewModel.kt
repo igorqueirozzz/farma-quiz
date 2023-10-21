@@ -1,8 +1,8 @@
-package dev.queiroz.farmaquiz.ui.screen.home
+package dev.queiroz.farmaquiz.ui.screen.viewmodel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.queiroz.farmaquiz.data.datasource.firestore.FirestoreQuizDataSource
@@ -14,13 +14,18 @@ import dev.queiroz.farmaquiz.data.repository.QuestionRepository
 import dev.queiroz.farmaquiz.data.repository.UserPreferencesDataStoreRepository
 import dev.queiroz.farmaquiz.model.Category
 import dev.queiroz.farmaquiz.model.CategoryScore
+import dev.queiroz.farmaquiz.model.CategoryWithCategoryScore
 import dev.queiroz.farmaquiz.model.Player
 import dev.queiroz.farmaquiz.model.ThemeMode
 import dev.queiroz.farmaquiz.model.UserPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -29,15 +34,15 @@ sealed interface HomeState {
     object LoadingState : HomeState
 
     data class LoadedState(
+        var userName: String,
         var categories: Flow<List<Category>>,
         var categoriesScores: Flow<List<CategoryScore>>,
-        val player: Flow<Player>
     ) : HomeState
 
 }
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class MainViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesDataStoreRepository,
     categoryRepository: CategoryRepository,
     private val questionRepository: QuestionRepository,
@@ -47,28 +52,36 @@ class HomeViewModel @Inject constructor(
     private val firestoreQuizDataSource: FirestoreQuizDataSource
 ) : ViewModel() {
 
-    val userPreferences: LiveData<UserPreferences> =
-        userPreferencesRepository.userPreferencesFlow.asLiveData()
+    init {
+        viewModelScope.launch {
+            val flow = userPreferencesRepository.userPreferencesFlow
+            flow.collectLatest {
+                _userPreferences.postValue(it)
+                _state.tryEmit(
+                    HomeState.LoadedState(
+                        it.userName,
+                        categories = categories,
+                        categoriesScores = flow { categoriesScore }
+                    )
+                )
+            }
+        }
+    }
 
-    private val player = playerRepository.getPlayerStream()
+    private val _userPreferences = MutableLiveData<UserPreferences>(null)
+    val userPreferences: LiveData<UserPreferences> = _userPreferences
+
+    val userPreferencesFlow = userPreferencesRepository.userPreferencesFlow
 
     private val categories: Flow<List<Category>> = categoryRepository.getAllStream()
 
-    private val categoriesScores: Flow<List<CategoryScore>> = categoryScoreRepository.getAllStream()
+    val categoriesWithScores: Flow<List<CategoryWithCategoryScore>> =
+        categoryScoreRepository.getAllStream()
 
-    var state: StateFlow<HomeState> = MutableStateFlow(HomeState.LoadingState)
-        private set
-        get() {
-            return if (userPreferences.value == null)
-                MutableStateFlow(HomeState.LoadingState)
-            else MutableStateFlow(
-                HomeState.LoadedState(
-                    categories = categories,
-                    player = player,
-                    categoriesScores = categoriesScores
-                )
-            )
-        }
+    private var categoriesScore: List<CategoryScore> = emptyList()
+
+    private val _state = MutableStateFlow<HomeState>(HomeState.LoadingState)
+    val state: StateFlow<HomeState> = _state
 
     fun onFinishWelcomeScreen(userName: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -79,6 +92,13 @@ class HomeViewModel @Inject constructor(
                     themeMode = ThemeMode.AUTO,
                     isFirstLaunch = false,
                     LocalDate.now()
+                )
+            )
+            _state.emit(
+                HomeState.LoadedState(
+                    userPreferences.value!!.userName,
+                    categories = categories,
+                    categoriesScores = flow { categoriesScore }
                 )
             )
         }
@@ -105,5 +125,11 @@ class HomeViewModel @Inject constructor(
         firestoreQuizDataSource.updateQuestionsWithFirestoreData { }
 
         firestoreQuizDataSource.updateAnswersWithFirestoreData { }
+    }
+
+    fun updateUserPreferences(userPreferences: UserPreferences) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferencesRepository.updateUserPreferences(userPreferences = userPreferences)
+        }
     }
 }

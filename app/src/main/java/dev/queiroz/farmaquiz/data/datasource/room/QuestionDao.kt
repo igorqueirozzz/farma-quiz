@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import dev.queiroz.farmaquiz.data.TableNames
 import dev.queiroz.farmaquiz.data.TableNames.QUESTION
 import dev.queiroz.farmaquiz.model.Question
 import dev.queiroz.farmaquiz.model.QuestionWithAnswers
@@ -34,7 +33,15 @@ interface QuestionDao {
     @Transaction
     fun getAll(): Flow<List<Question>>
 
+    @Query("SELECT * FROM $QUESTION")
+    @Transaction
+    fun getAllQuestionsWithAnswers(): List<QuestionWithAnswers>
+
     @Query("SELECT *  FROM $QUESTION WHERE categoryId = :categoryId")
     @Transaction
     fun getQuestionsWithAnswersByCategory(categoryId: String): Flow<List<QuestionWithAnswers>>
+
+    @Query("SELECT *  FROM $QUESTION WHERE categoryId = :categoryId")
+    @Transaction
+    fun getQuestionsWithAnswersByCategoryNonStream(categoryId: String): List<QuestionWithAnswers>
 }

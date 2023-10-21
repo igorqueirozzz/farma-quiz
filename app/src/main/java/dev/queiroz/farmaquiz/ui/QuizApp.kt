@@ -2,10 +2,8 @@ package dev.queiroz.farmaquiz.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,14 +15,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -34,13 +33,16 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dev.queiroz.farmaquiz.R
 import dev.queiroz.farmaquiz.model.ThemeMode
+import dev.queiroz.farmaquiz.model.UserPreferences
 import dev.queiroz.farmaquiz.ui.components.ErrorScreen
 import dev.queiroz.farmaquiz.ui.components.QuizAppBar
 import dev.queiroz.farmaquiz.ui.components.QuizNavHost
-import dev.queiroz.farmaquiz.ui.screen.home.HomeViewModel
+import dev.queiroz.farmaquiz.ui.screen.viewmodel.MainViewModel
 import dev.queiroz.farmaquiz.ui.screen.quizgame.QuizGameViewModel
 import dev.queiroz.farmaquiz.ui.screen.welcome.WelcomeScreen
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 private sealed interface QuizAppState {
@@ -56,14 +58,23 @@ private sealed interface QuizAppState {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizApp() {
-
-    val homeViewModel = hiltViewModel<HomeViewModel>()
+    val mainViewModel = hiltViewModel<MainViewModel>()
     val quizGameViewModel = hiltViewModel<QuizGameViewModel>()
-    val userPreferences by homeViewModel.userPreferences.observeAsState()
+    var userPreferences by remember {
+        mutableStateOf<UserPreferences?>(null)
+    }
     var quizAppState by remember {
         mutableStateOf<QuizAppState>(
             QuizAppState.Loading
         )
+    }
+
+    val userPreferencesFlow = mainViewModel.userPreferencesFlow
+
+    LaunchedEffect(key1 = userPreferences){
+        userPreferencesFlow.collectLatest {
+            userPreferences = it
+        }
     }
 
     if (quizAppState is QuizAppState.Loading && userPreferences != null) {
@@ -74,7 +85,7 @@ fun QuizApp() {
         if (userPreferences!!.isFirstLaunch || today.isAfter(daysAfterUpdate)) {
             quizAppState = QuizAppState.UpdatingDataBase
 
-            homeViewModel.updateDatabase { success ->
+            mainViewModel.updateDatabase { success ->
                 quizAppState = if (success) QuizAppState.Loaded else QuizAppState.UpdateError
             }
 
@@ -101,7 +112,12 @@ fun QuizApp() {
 
         is QuizAppState.Loaded -> {
             FarmaQuizTheme(
-                darkTheme = if (userPreferences!!.themeMode == ThemeMode.AUTO) isSystemInDarkTheme() else userPreferences!!.themeMode == ThemeMode.DARK
+                darkTheme = when(userPreferences!!.themeMode){
+                    ThemeMode.LIGHT -> false
+                    ThemeMode.DARK -> true
+                    else -> isSystemInDarkTheme()
+                },
+                dynamicColor = userPreferences!!.themeMode == ThemeMode.DYNAMIC
             ) {
                 val navHostController = rememberNavController()
                 val navBackStack by navHostController.currentBackStackEntryAsState()
@@ -112,7 +128,7 @@ fun QuizApp() {
 
                  if (userPreferences?.isFirstLaunch == true) {
                     WelcomeScreen(
-                        onUserPassWelcomeScreen = homeViewModel::onFinishWelcomeScreen
+                        onUserPassWelcomeScreen = mainViewModel::onFinishWelcomeScreen
                     )
                 } else {
                     Surface(modifier = Modifier.fillMaxSize()) {
@@ -134,7 +150,7 @@ fun QuizApp() {
                                 navController = navHostController,
                                 onRequestChangeAppBar = { showAppBar = it },
                                 quizGameViewModel = quizGameViewModel,
-                                homeViewModel = homeViewModel
+                                mainViewModel = mainViewModel
                             )
                         }
                     }

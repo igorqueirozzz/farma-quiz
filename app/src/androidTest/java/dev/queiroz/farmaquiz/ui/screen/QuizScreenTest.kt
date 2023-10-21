@@ -35,8 +35,8 @@ class QuizScreenTest {
                     state = state,
                     onLoadQuestionByCategory = {},
                     onSelectAnswer = { _, _ -> },
-                    onFinishGame = {},
-                    onResetGame = {})
+                    onLoadRandomGaming = {},
+                    onFinishGame = {})
             }
         composeTestRule
             .onNodeWithTag(quizScreenLoading)
@@ -57,14 +57,12 @@ class QuizScreenTest {
                         Thread.sleep(100)
                         state = QuizGameState.Gaming(
                             category = category,
-                            questions = flow {
-                                emit(emptyList())
-                            }
+                            questions = emptyList()
                         )
                     },
                     onSelectAnswer = { _, _ -> },
-                    onFinishGame = {},
-                    onResetGame = {})
+                    onLoadRandomGaming = {},
+                    onFinishGame = {})
             }
 
         composeTestRule

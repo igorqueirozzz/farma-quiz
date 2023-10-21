@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -49,6 +50,8 @@ import dev.queiroz.farmaquiz.constants.TestTags.categoryCardItem
 import dev.queiroz.farmaquiz.data.datasource.dummy.CategoriesDummy
 import dev.queiroz.farmaquiz.extensions.getDrawableIdentifier
 import dev.queiroz.farmaquiz.model.Category
+import dev.queiroz.farmaquiz.ui.Settings
+import dev.queiroz.farmaquiz.ui.screen.settings.getProfilePicture
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 
 @Composable
@@ -75,7 +78,7 @@ fun UserGreeting(userName: String, modifier: Modifier = Modifier, painter: Paint
                 .size(50.dp)
                 .clip(shape = CircleShape),
             contentScale = ContentScale.Crop,
-            painter = painter ?: painterResource(id = R.drawable.ic_launcher_background),
+            bitmap = Settings.getProfilePicture(context = LocalContext.current).asImageBitmap(),
             contentDescription = "UserPhoto",
         )
     }
@@ -224,7 +227,9 @@ fun ErrorScreen(
     content: (@Composable () -> Unit)?
 ) {
     Column(
-        modifier = modifier.fillMaxSize().padding(32.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {

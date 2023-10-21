@@ -18,7 +18,11 @@ class QuestionOfflineRepository(private val questionDao: QuestionDao) : Question
     override suspend fun delete(question: Question) = questionDao.delete(question = question)
 
     override fun getAllStream(): Flow<List<Question>> = questionDao.getAll()
+    override fun getAllQuestionsWithAnswers(): List<QuestionWithAnswers> = questionDao.getAllQuestionsWithAnswers()
 
     override fun getQuestionsWithAnswersByCategoryStream(categoryId: String): Flow<List<QuestionWithAnswers>> =
         questionDao.getQuestionsWithAnswersByCategory(categoryId = categoryId)
+
+    override fun getQuestionsWithAnswersByCategory(categoryId: String): List<QuestionWithAnswers> =
+        questionDao.getQuestionsWithAnswersByCategoryNonStream(categoryId = categoryId)
 }

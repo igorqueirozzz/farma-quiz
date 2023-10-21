@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Games
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.PieChart
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import dev.queiroz.farmaquiz.R
 
@@ -33,4 +34,10 @@ object QuizGame: QuizDestination {
     override val name: String = "Quiz Game"
 }
 
-val allTabScreens = listOf(Home, Statistics)
+object Settings : QuizDestination {
+    override val route: String = "settings"
+    override val name: String = "Configurações"
+    override val icon: ImageVector = Icons.Rounded.Settings
+}
+
+val allTabScreens = listOf(Home, Statistics, Settings)

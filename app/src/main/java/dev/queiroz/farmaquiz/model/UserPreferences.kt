@@ -6,7 +6,8 @@ import java.time.LocalDate
 enum class ThemeMode{
     LIGHT,
     DARK,
-    AUTO
+    AUTO,
+    DYNAMIC
 }
 
-data class UserPreferences(val userName: String, val themeMode: ThemeMode, val isFirstLaunch: Boolean, val lastDataUpdate: LocalDate?)
+data class UserPreferences(var userName: String, var themeMode: ThemeMode, val isFirstLaunch: Boolean, val lastDataUpdate: LocalDate?)
