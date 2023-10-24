@@ -13,19 +13,16 @@ import dev.queiroz.farmaquiz.data.repository.PlayerRepository
 import dev.queiroz.farmaquiz.data.repository.QuestionRepository
 import dev.queiroz.farmaquiz.data.repository.UserPreferencesDataStoreRepository
 import dev.queiroz.farmaquiz.model.Category
-import dev.queiroz.farmaquiz.model.CategoryScore
 import dev.queiroz.farmaquiz.model.CategoryWithCategoryScore
 import dev.queiroz.farmaquiz.model.Player
 import dev.queiroz.farmaquiz.model.ThemeMode
 import dev.queiroz.farmaquiz.model.UserPreferences
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -36,7 +33,7 @@ sealed interface HomeState {
     data class LoadedState(
         var userName: String,
         var categories: Flow<List<Category>>,
-        var categoriesScores: Flow<List<CategoryScore>>,
+        var categoriesScores: Flow<List<CategoryWithCategoryScore>>,
     ) : HomeState
 
 }
@@ -54,16 +51,19 @@ class MainViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val flow = userPreferencesRepository.userPreferencesFlow
-            flow.collectLatest {
-                _userPreferences.postValue(it)
-                _state.tryEmit(
-                    HomeState.LoadedState(
-                        it.userName,
-                        categories = categories,
-                        categoriesScores = flow { categoriesScore }
-                    )
-                )
+            async {
+                userPreferencesRepository
+                    .userPreferencesFlow
+                    .collectLatest {
+                        _userPreferences.postValue(it)
+                        _state.tryEmit(
+                            HomeState.LoadedState(
+                                it.userName,
+                                categories = categories,
+                                categoriesScores = categoriesWithScores
+                            )
+                        )
+                    }
             }
         }
     }
@@ -78,7 +78,6 @@ class MainViewModel @Inject constructor(
     val categoriesWithScores: Flow<List<CategoryWithCategoryScore>> =
         categoryScoreRepository.getAllStream()
 
-    private var categoriesScore: List<CategoryScore> = emptyList()
 
     private val _state = MutableStateFlow<HomeState>(HomeState.LoadingState)
     val state: StateFlow<HomeState> = _state
@@ -98,7 +97,7 @@ class MainViewModel @Inject constructor(
                 HomeState.LoadedState(
                     userPreferences.value!!.userName,
                     categories = categories,
-                    categoriesScores = flow { categoriesScore }
+                    categoriesScores = categoriesWithScores
                 )
             )
         }

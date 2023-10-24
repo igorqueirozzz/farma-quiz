@@ -7,17 +7,17 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.queiroz.farmaquiz.R
-import dev.queiroz.farmaquiz.extensions.getDrawableIdentifier
 import dev.queiroz.farmaquiz.model.Category
 import dev.queiroz.farmaquiz.ui.Home
 import dev.queiroz.farmaquiz.ui.components.CategoryCardList
@@ -25,6 +25,7 @@ import dev.queiroz.farmaquiz.ui.components.DailyCard
 import dev.queiroz.farmaquiz.ui.components.ExperienceCard
 import dev.queiroz.farmaquiz.ui.components.UserGreeting
 import dev.queiroz.farmaquiz.ui.screen.viewmodel.HomeState
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun HomeScreen(
@@ -35,7 +36,13 @@ fun HomeScreen(
 ) {
     when (state) {
         is HomeState.LoadedState -> {
-            val categoriesScores by state.categoriesScores.collectAsState(initial = emptyList())
+            var totalOfExperiencePoints by remember { mutableIntStateOf(2) }
+            val categoriesScoresFlow = state.categoriesScores
+            LaunchedEffect(key1 = categoriesScoresFlow){
+                categoriesScoresFlow.collectLatest { categoryScore ->
+                    totalOfExperiencePoints = categoryScore.sumOf { it.categoryScore.score }
+                }
+            }
             Column(
                 modifier = modifier
                     .padding(horizontal = 16.dp)
@@ -43,14 +50,11 @@ fun HomeScreen(
             ) {
 
                 UserGreeting(
-                    userName = state.userName,
-                    painter = painterResource(
-                        id = LocalContext.current.getDrawableIdentifier("training_brain")
-                    )
+                    userName = state.userName
                 )
 
                 ExperienceCard(
-                    experiencePoints = categoriesScores.sumOf { categoryScore -> categoryScore.score },
+                    experiencePoints = totalOfExperiencePoints,
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
 

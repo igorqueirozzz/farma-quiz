@@ -33,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -55,7 +54,7 @@ import dev.queiroz.farmaquiz.ui.screen.settings.getProfilePicture
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 
 @Composable
-fun UserGreeting(userName: String, modifier: Modifier = Modifier, painter: Painter? = null) {
+fun UserGreeting(userName: String, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .height(56.dp)
@@ -264,7 +263,7 @@ fun ErrorScreen(
 fun UserGreetingPreview() {
     FarmaQuizTheme {
         Surface {
-            UserGreeting(userName = "preview", painter = painterResource(id = R.drawable.pic_demo))
+            UserGreeting(userName = "preview")
         }
     }
 }
