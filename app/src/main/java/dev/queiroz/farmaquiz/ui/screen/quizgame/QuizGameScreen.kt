@@ -2,6 +2,7 @@
 
 package dev.queiroz.farmaquiz.ui.screen.quizgame
 
+import android.widget.Space
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,7 +32,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -133,7 +134,7 @@ fun QuizScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun QuizGame(
     category: Category?,
@@ -216,9 +217,11 @@ fun QuizGame(
         HorizontalPager(
             state = pagerState,
             userScrollEnabled = false,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+
+                .padding(innerPadding)
         ) {
-            Column {
+            Column(verticalArrangement = Arrangement.SpaceEvenly) {
 
                 if (questionsWithAnswers.isNotEmpty()) {
                     val question = questionsWithAnswers[it]
@@ -254,6 +257,8 @@ fun QuizGame(
                             .padding(horizontal = 16.dp)
                             .weight(1f)
                     )
+                    
+                    Spacer(modifier = Modifier.height(6.dp))
 
                     QuizAnswerList(
                         answers = question.answers,
@@ -266,9 +271,9 @@ fun QuizGame(
                         onSeeExplicationClick = { showExplicationDialog = true },
                         modifier = modifier
                             .padding(
-                                horizontal = 32.dp
+                                horizontal = 16.dp
                             )
-                            .weight(1.7f)
+                            .weight(1.5f)
                     )
                 }
             }

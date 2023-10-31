@@ -1,33 +1,44 @@
 package dev.queiroz.farmaquiz.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowCircleDown
+import androidx.compose.material.icons.filled.ArrowCircleUp
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -46,38 +57,99 @@ import dev.queiroz.farmaquiz.extensions.getDrawableIdentifier
 import dev.queiroz.farmaquiz.model.Answer
 import dev.queiroz.farmaquiz.model.QuestionWithAnswers
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun QuizQuestionContent(
     questionWithAnswers: QuestionWithAnswers, modifier: Modifier = Modifier
 ) {
+    val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
+    val iconButtonColor = IconButtonDefaults.iconButtonColors(
+        containerColor = MaterialTheme.colorScheme.primaryContainer
+    )
+    val scrollAnimDuration = 1500
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.Center
+        ) {
+            val hasImage = questionWithAnswers.question.imageResource != null
+            if (hasImage) {
+                Image(
+                    modifier = Modifier
+                        .width(200.dp)
+                        .height(200.dp),
+                    painter = painterResource(
+                        id = LocalContext.current.getDrawableIdentifier(
+                            questionWithAnswers.question.imageResource!!
+                        )
+                    ),
+                    contentDescription = stringResource(R.string.imageContent),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        val hasImage = questionWithAnswers.question.imageResource != null
-        if (hasImage) {
-            Image(
-                modifier = Modifier
-                    .width(200.dp)
-                    .height(200.dp),
-                painter = painterResource(
-                    id = LocalContext.current.getDrawableIdentifier(
-                        questionWithAnswers.question.imageResource!!
-                    )
-                ),
-                contentDescription = stringResource(R.string.imageContent),
-                contentScale = ContentScale.Crop
+            Text(
+                text = questionWithAnswers.question.question,
+                textAlign = TextAlign.Start,
+                style = if (hasImage) MaterialTheme.typography.titleMedium else MaterialTheme.typography.displayMedium
             )
+
+
         }
 
-        Text(
-            text = questionWithAnswers.question.question,
-            textAlign = TextAlign.Center,
-            style = if (hasImage) MaterialTheme.typography.titleMedium else MaterialTheme.typography.displayMedium
-        )
+        AnimatedVisibility(
+            modifier = Modifier.align(Alignment.BottomEnd),
+            visible = scrollState.canScrollForward,
+            enter = scaleIn(),
+            exit = scaleOut()
+        ) {
+            IconButton(
+                colors = iconButtonColor,
+                onClick = {
+                    scope.launch {
+                        scrollState.animateScrollTo(
+                            value = scrollState.maxValue,
+                            animationSpec = tween(durationMillis = scrollAnimDuration)
+                        )
+                    }
+                }) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowCircleDown,
+                    contentDescription = null
+                )
+            }
+        }
+
+
+
+        AnimatedVisibility(
+            modifier = Modifier.align(Alignment.TopEnd),
+            visible = scrollState.canScrollBackward,
+            enter = scaleIn(),
+            exit = scaleOut()
+        ) {
+            IconButton(
+                colors = iconButtonColor,
+                onClick = {
+                    scope.launch {
+                        scrollState.animateScrollTo(
+                            value = 0,
+                            animationSpec = tween(durationMillis = scrollAnimDuration)
+                        )
+                    }
+                }) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowCircleUp,
+                    contentDescription = null
+                )
+            }
+        }
+
+
     }
 }
 
@@ -141,8 +213,9 @@ fun QuizAnswerItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .defaultMinSize(minHeight = 60.dp)
-                .padding(horizontal = 16.dp, vertical = 16.dp),
+                .height(70.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
@@ -151,9 +224,8 @@ fun QuizAnswerItem(
             )
             Text(
                 text = answer.text,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center
+                modifier = Modifier.weight(2f),
+                textAlign = TextAlign.Center,
             )
             if (isSelected) {
                 Icon(
