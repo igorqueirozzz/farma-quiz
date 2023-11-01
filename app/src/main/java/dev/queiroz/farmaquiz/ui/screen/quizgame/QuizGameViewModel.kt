@@ -80,7 +80,7 @@ class QuizGameViewModel @Inject constructor(
 
 
             val questions =
-                dbQuestions.filter { !it.question.alreadyAnswered }.take(20).toMutableList()
+                dbQuestions.filter { !it.question.alreadyAnswered }.take(20).shuffled().toMutableList()
 
             _gameState.value =
                 QuizGameState.Gaming(category = category!!, questions = questions.also {
