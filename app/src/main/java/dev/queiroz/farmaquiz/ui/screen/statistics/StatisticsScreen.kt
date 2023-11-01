@@ -128,7 +128,9 @@ fun ExperienceByCategoryChart(
         backgroundColor = Color.Transparent
     )
 
-    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween) {
         PieChart(
             modifier = Modifier
                 .width(200.dp)

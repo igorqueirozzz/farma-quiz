@@ -112,10 +112,12 @@ fun CategoryCard(
                     style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.tertiary)
                 )
 
-                Text(
-                    text = "${category.remainingQuestions} questões restantes",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                if (category.remainingQuestions > 0) {
+                    Text(
+                        text = "${category.remainingQuestions} questões restantes",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
 
             Icon(imageVector = Icons.Filled.ChevronRight, contentDescription = null)
@@ -141,7 +143,7 @@ fun CategoryCardList(
     ) {
         if (categories.isEmpty()) {
             item {
-                Text(text = "Nenhuma informação encontrada.")
+                Text(text = stringResource(R.string.no_information_found))
             }
         } else {
             items(items = categories) { category ->
@@ -207,7 +209,10 @@ fun DailyCard(modifier: Modifier = Modifier) {
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(text = "Perguntas Diárias", style = MaterialTheme.typography.displayMedium)
+                Text(
+                    text = stringResource(R.string.daily_questions),
+                    style = MaterialTheme.typography.displayMedium
+                )
                 Text(text = "20 questões sobre diversas categorias")
             }
 

@@ -40,4 +40,6 @@
     <string name="save">Salvar</string>
     <string name="preferences_saved">Preferências salvas com sucesso</string>
     <string name="your_experience_by_category">Sua experiência por categoria</string>
+    <string name="no_information_found">Nenhuma informação encontrada.</string>
+    <string name="daily_questions">Perguntas Diárias</string>
 </resources>

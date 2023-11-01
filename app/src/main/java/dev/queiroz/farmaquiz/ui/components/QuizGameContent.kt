@@ -3,9 +3,6 @@ package dev.queiroz.farmaquiz.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,19 +10,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowCircleDown
-import androidx.compose.material.icons.filled.ArrowCircleUp
+import androidx.compose.material.icons.outlined.ArrowCircleDown
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Visibility
@@ -60,122 +56,85 @@ import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 import kotlinx.coroutines.launch
 
 @Composable
-fun QuizQuestionContent(
-    questionWithAnswers: QuestionWithAnswers, modifier: Modifier = Modifier
-) {
-    val scrollState = rememberScrollState()
-    val scope = rememberCoroutineScope()
-    val iconButtonColor = IconButtonDefaults.iconButtonColors(
-        containerColor = MaterialTheme.colorScheme.primaryContainer
-    )
-    val scrollAnimDuration = 1500
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.Center
-        ) {
-            val hasImage = questionWithAnswers.question.imageResource != null
-            if (hasImage) {
-                Image(
-                    modifier = Modifier
-                        .width(200.dp)
-                        .height(200.dp),
-                    painter = painterResource(
-                        id = LocalContext.current.getDrawableIdentifier(
-                            questionWithAnswers.question.imageResource!!
-                        )
-                    ),
-                    contentDescription = stringResource(R.string.imageContent),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
-            Text(
-                text = questionWithAnswers.question.question,
-                textAlign = TextAlign.Start,
-                style = if (hasImage) MaterialTheme.typography.titleMedium else MaterialTheme.typography.displayMedium
-            )
-
-
-        }
-
-        AnimatedVisibility(
-            modifier = Modifier.align(Alignment.BottomEnd),
-            visible = scrollState.canScrollForward,
-            enter = scaleIn(),
-            exit = scaleOut()
-        ) {
-            IconButton(
-                colors = iconButtonColor,
-                onClick = {
-                    scope.launch {
-                        scrollState.animateScrollTo(
-                            value = scrollState.maxValue,
-                            animationSpec = tween(durationMillis = scrollAnimDuration)
-                        )
-                    }
-                }) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowCircleDown,
-                    contentDescription = null
-                )
-            }
-        }
-
-
-
-        AnimatedVisibility(
-            modifier = Modifier.align(Alignment.TopEnd),
-            visible = scrollState.canScrollBackward,
-            enter = scaleIn(),
-            exit = scaleOut()
-        ) {
-            IconButton(
-                colors = iconButtonColor,
-                onClick = {
-                    scope.launch {
-                        scrollState.animateScrollTo(
-                            value = 0,
-                            animationSpec = tween(durationMillis = scrollAnimDuration)
-                        )
-                    }
-                }) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowCircleUp,
-                    contentDescription = null
-                )
-            }
-        }
-
-
-    }
-}
-
-@Composable
-fun QuizAnswerList(
-    answers: List<Answer>,
+fun QuizGameContent(
+    questionWithAnswers: QuestionWithAnswers,
     selectedAnswer: Answer? = null,
     onItemClick: (Answer) -> Unit,
     onSeeExplicationClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(
-        modifier = modifier
-            .selectableGroup()
-            .testTag(answersOptionsList),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(items = answers) { answer ->
-            QuizAnswerItem(
-                answer = answer,
-                answerIndex = answers.indexOf(answer),
-                onItemClick = onItemClick,
-                isSelected = answer == selectedAnswer,
-                onSeeExplicationClick = onSeeExplicationClick
-            )
+    val scope = rememberCoroutineScope()
+    val iconColors = IconButtonDefaults.outlinedIconButtonColors(
+        containerColor = MaterialTheme.colorScheme.primaryContainer
+    )
+    val listState = rememberLazyListState()
+    Box(contentAlignment = Alignment.Center) {
+        LazyColumn(
+            modifier = modifier
+                .selectableGroup()
+                .testTag(answersOptionsList),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            state = listState
+        ) {
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    val hasImage = questionWithAnswers.question.imageResource != null
+                    if (hasImage) {
+                        Image(
+                            modifier = Modifier
+                                .width(200.dp)
+                                .height(200.dp),
+                            painter = painterResource(
+                                id = LocalContext.current.getDrawableIdentifier(
+                                    questionWithAnswers.question.imageResource!!
+                                )
+                            ),
+                            contentDescription = stringResource(R.string.imageContent),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+
+                    Text(
+                        text = questionWithAnswers.question.question,
+                        textAlign = TextAlign.Start,
+                        style = if (hasImage) MaterialTheme.typography.titleMedium else MaterialTheme.typography.displayMedium
+                    )
+                }
+                Spacer(modifier = Modifier.height(50.dp))
+            }
+            items(items = questionWithAnswers.answers) { answer ->
+                QuizAnswerItem(
+                    answer = answer,
+                    answerIndex = questionWithAnswers.answers.indexOf(answer),
+                    onItemClick = onItemClick,
+                    isSelected = answer == selectedAnswer,
+                    onSeeExplicationClick = onSeeExplicationClick
+                )
+            }
         }
+
+        AnimatedVisibility(
+            modifier = Modifier.align(Alignment.BottomEnd),
+            visible = listState.canScrollForward) {
+            IconButton(
+                colors = iconColors,
+                onClick = {
+                    scope.launch {
+                        listState.animateScrollToItem(questionWithAnswers.answers.size)
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.ArrowCircleDown,
+                    contentDescription = null,
+                )
+            }
+        }
+
     }
 }
 
@@ -191,44 +150,46 @@ fun QuizAnswerItem(
     val containerColor by animateColorAsState(
         targetValue = if (isSelected && answer.isCorrect) MaterialTheme.colorScheme.primaryContainer
         else if (isSelected && !answer.isCorrect) MaterialTheme.colorScheme.error
-        else MaterialTheme.colorScheme.tertiaryContainer,
+        else MaterialTheme.colorScheme.surface,
         label = "",
     )
 
     Card(
         modifier = modifier
-            .border(
-                width = if (isSelected) 2.dp else (-1).dp,
-                color = MaterialTheme.colorScheme.onTertiaryContainer,
-                shape = MaterialTheme.shapes.medium
-            )
             .fillMaxWidth()
             .animateContentSize()
             .testTag(answerOptionCard)
-            .selectable(selected = isSelected, onClick = { onItemClick(answer) }),
+            .selectable(selected = isSelected, onClick = { onItemClick(answer) })
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                shape = MaterialTheme.shapes.large
+            ),
         colors = CardDefaults.cardColors(
             containerColor = containerColor
-        )
+        ),
+        shape = MaterialTheme.shapes.large
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(70.dp)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
+                modifier = Modifier.padding(horizontal = 4.dp),
                 text = "${getLetterOption(answerIndex)})",
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
                 text = answer.text,
-                modifier = Modifier.weight(2f),
+                modifier = Modifier.weight(1.5f),
                 textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium
             )
             if (isSelected) {
                 Icon(
+                    modifier = Modifier.padding(horizontal = 4.dp),
                     imageVector = if (answer.isCorrect) Icons.Rounded.CheckCircle else Icons.Rounded.Cancel,
                     contentDescription = null
                 )
@@ -251,11 +212,13 @@ fun QuizAnswerItem(
 
 @Composable
 @Preview(showBackground = true)
-fun QuizQuestionContentPreview() {
+fun QuizGameContentPreview() {
     FarmaQuizTheme {
         Column {
-            QuizQuestionContent(
-                questionWithAnswers = CategoriesDummy.questions.first()
+            QuizGameContent(
+                onItemClick = {},
+                questionWithAnswers = CategoriesDummy.questions.first(),
+                onSeeExplicationClick = {}
             )
         }
     }
@@ -270,18 +233,6 @@ fun QuizAnswerItemPreview() {
                 onItemClick = {},
                 answerIndex = 0,
                 isSelected = false,
-                onSeeExplicationClick = {})
-        }
-    }
-}
-
-@Composable
-@Preview(showSystemUi = true)
-fun QuizAnswerListPreview() {
-    FarmaQuizTheme {
-        Column {
-            QuizAnswerList(answers = CategoriesDummy.questions.first().answers,
-                onItemClick = {},
                 onSeeExplicationClick = {})
         }
     }
