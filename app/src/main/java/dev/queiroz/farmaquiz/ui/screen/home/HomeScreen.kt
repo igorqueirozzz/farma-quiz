@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -46,7 +47,7 @@ fun HomeScreen(
             var totalOfExperiencePoints by remember { mutableIntStateOf(2) }
             val categoriesScoresFlow = state.categoriesScores
             LaunchedEffect(key1 = categoriesScoresFlow){
-                categoriesScoresFlow.collectLatest { categoryScore ->
+                categoriesScoresFlow?.collectLatest { categoryScore ->
                     totalOfExperiencePoints = categoryScore.sumOf { it.categoryScore.score }
                 }
             }
@@ -81,11 +82,11 @@ fun HomeScreen(
                     style = MaterialTheme.typography.titleLarge
                 )
 
-                val categories by state.categories.collectAsState(initial = emptyList())
+                val categories = state.categories?.collectAsState(emptyList())
 
                 CategoryCardList(
                     modifier = Modifier.height(500.dp),
-                    categories = categories,
+                    categories = categories?.value ?: emptyList(),
                     onItemClick = onCategorySelected
                 )
 
