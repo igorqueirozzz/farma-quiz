@@ -17,6 +17,7 @@ import dev.queiroz.farmaquiz.data.repository.CategoryScoreRepository
 import dev.queiroz.farmaquiz.data.repository.PlayerRepository
 import dev.queiroz.farmaquiz.data.repository.QuestionRepository
 import dev.queiroz.farmaquiz.data.repository.UserPreferencesDataStoreRepository
+import dev.queiroz.farmaquiz.data.repository.impl.UserPreferencesDataStoreRepositoryImpl
 import dev.queiroz.farmaquiz.data.repository.impl.AnswerOfflineRepository
 import dev.queiroz.farmaquiz.data.repository.impl.CategoryOfflineRepository
 import dev.queiroz.farmaquiz.data.repository.impl.CategoryScoreOfflineRepository
@@ -39,7 +40,7 @@ object AppModule {
     @Singleton
     fun provideUserPreferencesRepository(@ApplicationContext context: Context):
             UserPreferencesDataStoreRepository =
-        UserPreferencesDataStoreRepository(dataStore = context.dataStore)
+        UserPreferencesDataStoreRepositoryImpl(dataStore = context.dataStore)
 
     @Provides
     @Singleton

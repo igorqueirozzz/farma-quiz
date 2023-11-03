@@ -18,6 +18,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import dev.queiroz.farmaquiz.model.CategoryWithCategoryScore
+import dev.queiroz.farmaquiz.model.UserPreferences
 import dev.queiroz.farmaquiz.ui.Home
 import dev.queiroz.farmaquiz.ui.QuizGame
 import dev.queiroz.farmaquiz.ui.Settings
@@ -32,6 +33,7 @@ import dev.queiroz.farmaquiz.ui.screen.settings.SettingsScreen
 import dev.queiroz.farmaquiz.ui.screen.statistics.StatisticsScreen
 import dev.queiroz.farmaquiz.ui.screen.viewmodel.HomeState
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -127,7 +129,7 @@ fun QuizNavHost(
         }
 
         composable(route = Settings.route) {
-            val userPreferences by mainViewModel.userPreferences.observeAsState()
+            val userPreferences by mainViewModel.userPreferencesFlow.collectAsState(initial = null)
             if (userPreferences != null) {
                 SettingsScreen(
                     userPreferences = userPreferences!!,
