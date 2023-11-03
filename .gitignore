@@ -1,5 +1,5 @@
 *.iml
-.gradle
+.gradle/
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -23,9 +23,6 @@ app/google-services.json
 *.so
 *.aar
 *.gradle
-gradle/wrapper/gradle-wrapper.properties
-gradle/wrapper/gradle-wrapper.jar
 .idea/
-.gradle/
 app/release/
 
