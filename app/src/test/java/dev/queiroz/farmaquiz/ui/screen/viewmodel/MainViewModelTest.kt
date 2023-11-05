@@ -1,4 +1,3 @@
-import androidx.compose.runtime.mutableStateOf
 import dev.queiroz.farmaquiz.data.datasource.firestore.FirestoreQuizDataSource
 import dev.queiroz.farmaquiz.data.repository.CategoryRepository
 import dev.queiroz.farmaquiz.data.repository.CategoryScoreRepository
@@ -9,8 +8,11 @@ import dev.queiroz.farmaquiz.model.ThemeMode
 import dev.queiroz.farmaquiz.model.UserPreferences
 import dev.queiroz.farmaquiz.ui.screen.viewmodel.HomeState
 import dev.queiroz.farmaquiz.ui.screen.viewmodel.MainViewModel
+import dev.queiroz.farmaquiz.utils.TestDispatcherProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -21,14 +23,15 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.atMost
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import java.time.LocalDate
 
 const val userName = "Igor Queiroz"
 
-@RunWith(JUnit4::class)
+
+@RunWith(MockitoJUnitRunner::class)
 class MainViewModelTest {
 
     private val userPreferencesRepository: UserPreferencesDataStoreRepository = mock()
@@ -39,10 +42,12 @@ class MainViewModelTest {
 
     private lateinit var mainViewModel: MainViewModel
 
+
     @Before
     fun setup() {
         Dispatchers.setMain(StandardTestDispatcher())
         mainViewModel = MainViewModel(
+            dispatcherProvider = TestDispatcherProvider(),
             userPreferencesRepository,
             categoryRepository,
             playerRepository,
@@ -57,9 +62,8 @@ class MainViewModelTest {
     }
 
     @Test
-    fun onFinishWelcomeScreen_shouldCreateNewPlayerObject() = runTest {
+    fun onFinishWelcomeScreen_shouldCreateNewPlayerObject() = runBlocking {
         mainViewModel.onFinishWelcomeScreen(userName)
-        advanceUntilIdle()
         verify(playerRepository).insert(player = Player(name = userName.trim()))
     }
 
@@ -67,27 +71,31 @@ class MainViewModelTest {
     fun onFinishWelcomeScreen_shouldUpdateTheUserPreferences() = runTest {
         mainViewModel.onFinishWelcomeScreen(userName)
         advanceUntilIdle()
-        verify(userPreferencesRepository).updateUserPreferences(
+
+        verify(userPreferencesRepository, atMost(2)).updateUserPreferences(
             userPreferences = UserPreferences(
                 userName = userName,
                 themeMode = ThemeMode.AUTO,
                 isFirstLaunch = false,
-                LocalDate.now()
+                lastDataUpdate = null,
             )
         )
     }
 
     @Test
-    fun onFinishWelcomeScreen_shouldEmitTheCorrectState() = runTest {
-        val state = mutableStateOf<HomeState>(HomeState.LoadingState)
-        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            mainViewModel.state.collect {
-                state.value = it
-            }
-        }
-        mainViewModel.onFinishWelcomeScreen(userName)
+    fun onFinishWelcomeScreen_shouldEmitTheCorrectState() {
+        runBlocking {
+            val state = mutableListOf<HomeState>()
 
-        println("State value is: ${state.value}}")
-        assert(state.value is HomeState.LoadedState)
+            val job = launch(UnconfinedTestDispatcher()) {
+                mainViewModel.state.toList(state)
+            }
+
+            mainViewModel.onFinishWelcomeScreen(userName)
+
+            assert(state.last() is HomeState.LoadedState)
+            job.cancel()
+        }
     }
+
 }

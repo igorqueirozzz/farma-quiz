@@ -23,6 +23,8 @@ import dev.queiroz.farmaquiz.data.repository.impl.CategoryOfflineRepository
 import dev.queiroz.farmaquiz.data.repository.impl.CategoryScoreOfflineRepository
 import dev.queiroz.farmaquiz.data.repository.impl.PlayerOfflineRepository
 import dev.queiroz.farmaquiz.data.repository.impl.QuestionOfflineRepository
+import dev.queiroz.farmaquiz.utils.DefaultDispatcherProvider
+import dev.queiroz.farmaquiz.utils.DispatcherProvider
 import javax.inject.Singleton
 
 @Module
@@ -64,7 +66,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providerCategoryScoreRepository(dataBase: QuizDataBase): CategoryScoreRepository =
+    fun provideCategoryScoreRepository(dataBase: QuizDataBase): CategoryScoreRepository =
         CategoryScoreOfflineRepository(categoryScoreDao = dataBase.categoryScoreDao())
 
     @Provides
@@ -79,4 +81,8 @@ object AppModule {
             questionRepository = questionRepository,
             answerRepository = answerRepository
         )
+
+    @Provides
+    @Singleton
+    fun providerDispatcherProvider(): DispatcherProvider = DefaultDispatcherProvider()
 }

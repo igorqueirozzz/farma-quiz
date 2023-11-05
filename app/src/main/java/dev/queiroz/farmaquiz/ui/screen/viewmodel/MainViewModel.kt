@@ -14,6 +14,7 @@ import dev.queiroz.farmaquiz.model.CategoryWithCategoryScore
 import dev.queiroz.farmaquiz.model.Player
 import dev.queiroz.farmaquiz.model.ThemeMode
 import dev.queiroz.farmaquiz.model.UserPreferences
+import dev.queiroz.farmaquiz.utils.DispatcherProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -38,6 +40,7 @@ sealed interface HomeState {
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    private val dispatcherProvider: DispatcherProvider,
     private val userPreferencesRepository: UserPreferencesDataStoreRepository,
     categoryRepository: CategoryRepository,
     private val playerRepository: PlayerRepository,
@@ -59,7 +62,7 @@ class MainViewModel @Inject constructor(
     val state: StateFlow<HomeState> = _state.asStateFlow()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcherProvider.io) {
             userPreferencesRepository
                 .userPreferencesFlow
                 .collectLatest {
@@ -77,7 +80,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun onFinishWelcomeScreen(userName: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcherProvider.io) {
             playerRepository.insert(player = Player(name = userName.trim()))
 
             userPreferencesRepository.updateUserPreferences(
