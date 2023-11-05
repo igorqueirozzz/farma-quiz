@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -58,12 +59,14 @@ class MainViewModelTest {
     @Test
     fun onFinishWelcomeScreen_shouldCreateNewPlayerObject() = runTest {
         mainViewModel.onFinishWelcomeScreen(userName)
+        advanceUntilIdle()
         verify(playerRepository).insert(player = Player(name = userName.trim()))
     }
 
     @Test
     fun onFinishWelcomeScreen_shouldUpdateTheUserPreferences() = runTest {
         mainViewModel.onFinishWelcomeScreen(userName)
+        advanceUntilIdle()
         verify(userPreferencesRepository).updateUserPreferences(
             userPreferences = UserPreferences(
                 userName = userName,

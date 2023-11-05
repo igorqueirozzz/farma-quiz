@@ -1,5 +1,5 @@
 *.iml
-.gradle
+.gradle/
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -14,6 +14,7 @@
 .cxx
 local.properties
 app/build/
+app/google-services.json
 *.apk
 *.ap_
 *.class
@@ -22,9 +23,6 @@ app/build/
 *.so
 *.aar
 *.gradle
-gradle/wrapper/gradle-wrapper.properties
-gradle/wrapper/gradle-wrapper.jar
 .idea/
-.gradle/
 app/release/
 
