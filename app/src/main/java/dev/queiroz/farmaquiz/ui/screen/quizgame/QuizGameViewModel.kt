@@ -11,7 +11,7 @@ import dev.queiroz.farmaquiz.model.Category
 import dev.queiroz.farmaquiz.model.Question
 import dev.queiroz.farmaquiz.model.QuestionWithAnswers
 import dev.queiroz.farmaquiz.model.enum.Difficult
-import kotlinx.coroutines.Dispatchers
+import dev.queiroz.farmaquiz.utils.DispatcherProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 sealed interface QuizGameState {
     data class Gaming(
-        val category: Category,
+        val category: Category?,
         val questions: List<QuestionWithAnswers>,
         val selectedAnswer: Answer? = null
     ) : QuizGameState {
@@ -58,6 +58,7 @@ sealed interface QuizGameState {
 
 @HiltViewModel
 class QuizGameViewModel @Inject constructor(
+    private val dispatcherProvider: DispatcherProvider,
     private val questionRepository: QuestionRepository,
     private val categoryRepository: CategoryRepository,
     private val categoryScoreRepository: CategoryScoreRepository
@@ -72,7 +73,7 @@ class QuizGameViewModel @Inject constructor(
     private var category: Category? = null
 
     fun loadQuestionByCategory(categoryId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcherProvider.io) {
 
             category = categoryRepository.findById(categoryId)
 
@@ -82,19 +83,20 @@ class QuizGameViewModel @Inject constructor(
             val questions =
                 dbQuestions.filter { !it.question.alreadyAnswered }.take(20).shuffled().toMutableList()
 
-            _gameState.value =
-                QuizGameState.Gaming(category = category!!, questions = questions.also {
+            _gameState.emit(
+                QuizGameState.Gaming(category = category, questions = questions.also {
                     if (it.size < 20) {
                         it.addAll(dbQuestions.filter { filter -> filter.question.alreadyAnswered }
                             .take(20 - it.size))
                     }
                 })
+            )
 
         }
     }
 
     fun loadQuestionRandomly() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcherProvider.io) {
             val dbQuestions = questionRepository.getAllQuestionsWithAnswers()
 
             val questions =
@@ -131,7 +133,7 @@ class QuizGameViewModel @Inject constructor(
     }
 
     fun onFinishGame() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcherProvider.io) {
             questionRepository.updateAll(answeredQuestions)
 
             if (_gameState.value is QuizGameState.Gaming) {

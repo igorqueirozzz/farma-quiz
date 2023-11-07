@@ -53,7 +53,6 @@ android {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     val lifecycleVersion = "2.6.1"
     val hiltVersion = "2.44"
     val navVersion = "2.7.3"

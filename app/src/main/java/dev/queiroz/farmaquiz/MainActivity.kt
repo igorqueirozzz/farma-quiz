@@ -14,7 +14,7 @@ import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     companion object {
-        var PACKAGE_NAME = ""
+        var PACKAGE_NAME = "dev.queiroz.farmaquiz"
             private set
     }
     override fun onCreate(savedInstanceState: Bundle?) {

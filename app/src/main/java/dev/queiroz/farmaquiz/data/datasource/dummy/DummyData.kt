@@ -8,18 +8,18 @@ import dev.queiroz.farmaquiz.model.enum.Difficult
 
 object CategoriesDummy {
     val categories = listOf<Category>(
-        Category(id = "1", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
-        Category(id = "2", name = "Test 1 Farmacêutica", imageName = "pic_chemical_demo"),
-        Category(id = "3", name = "test 2 Farmacêutica", imageName = "pic_chemical_demo"),
-        Category(id = "4", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
-        Category(id = "5", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
-        Category(id = "6", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
-        Category(id = "7", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
-        Category(id = "8", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
-        Category(id = "9", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
-        Category(id = "10", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
-        Category(id = "11", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
-        Category(id = "12", name = "Quimica Farmacêutica", imageName = "pic_chemical_demo"),
+        Category(id = "first", name = "Quimica Farmacêutica", imageName = "ic_chemical"),
+        Category(id = "2", name = "Test 1 Farmacêutica", imageName = "ic_chemical"),
+        Category(id = "3", name = "test 2 Farmacêutica", imageName = "ic_chemical"),
+        Category(id = "4", name = "Quimica Farmacêutica", imageName = "ic_chemical"),
+        Category(id = "5", name = "Quimica Farmacêutica", imageName = "ic_chemical"),
+        Category(id = "6", name = "Quimica Farmacêutica", imageName = "ic_chemical"),
+        Category(id = "7", name = "Quimica Farmacêutica", imageName = "ic_chemical"),
+        Category(id = "8", name = "Quimica Farmacêutica", imageName = "ic_chemical"),
+        Category(id = "9", name = "Quimica Farmacêutica", imageName = "ic_chemical"),
+        Category(id = "10", name = "Quimica Farmacêutica", imageName = "ic_chemical"),
+        Category(id = "11", name = "Quimica Farmacêutica", imageName = "ic_chemical"),
+        Category(id = "12", name = "Quimica Farmacêutica", imageName = "ic_chemical"),
     )
 
     val answers = listOf(
@@ -94,11 +94,11 @@ object CategoriesDummy {
                 question = "Qual é a principal função dos antibióticos?",
                 categoryId = "first",
                 alreadyAnswered = false,
-                imageResource = "pic_chemical_demo",
+                imageResource = "ic_chemical",
                 explication = "Test",
                 difficult = Difficult.easy
             ),
-            answers = answers.shuffled()
+            answers = answers.shuffled().take(4)
         ),
         QuestionWithAnswers(
             question = Question(
@@ -106,11 +106,11 @@ object CategoriesDummy {
                 question = "Qual é a principal função dos antibióticos?",
                 categoryId = "first",
                 alreadyAnswered = false,
-                imageResource = "pic_chemical_demo",
+                imageResource = "ic_chemical",
                 explication = "Test",
                 difficult = Difficult.easy
             ),
-            answers = answers.shuffled()
+            answers = answers.shuffled().take(4)
         ),
         QuestionWithAnswers(
             question = Question(
@@ -118,11 +118,11 @@ object CategoriesDummy {
                 question = "Qual é a principal função dos antibióticos?",
                 categoryId = "first",
                 alreadyAnswered = false,
-                imageResource = "pic_chemical_demo",
+                imageResource = "ic_chemical",
                 explication = "Test",
                 difficult = Difficult.easy
             ),
-            answers = answers.shuffled()
+            answers = answers.shuffled().take(4)
         ),
         QuestionWithAnswers(
             question = Question(
@@ -130,11 +130,11 @@ object CategoriesDummy {
                 question = "Qual é a principal função dos antibióticos?",
                 categoryId = "first",
                 alreadyAnswered = false,
-                imageResource = "pic_chemical_demo",
+                imageResource = "ic_chemical",
                 explication = "Test",
                 difficult = Difficult.easy
             ),
-            answers = answers.shuffled()
+            answers = answers.shuffled().take(4)
         ),
         QuestionWithAnswers(
             question = Question(
@@ -142,11 +142,11 @@ object CategoriesDummy {
                 question = "Qual é a principal função dos antibióticos?",
                 categoryId = "first",
                 alreadyAnswered = false,
-                imageResource = "pic_chemical_demo",
+                imageResource = "ic_chemical",
                 explication = "Test",
                 difficult = Difficult.easy
             ),
-            answers = answers.shuffled()
+            answers = answers.shuffled().take(4)
         ),
         QuestionWithAnswers(
             question = Question(
@@ -154,11 +154,11 @@ object CategoriesDummy {
                 question = "Qual é a principal função dos antibióticos?",
                 categoryId = "first",
                 alreadyAnswered = false,
-                imageResource = "pic_chemical_demo",
+                imageResource = "ic_chemical",
                 explication = "Test",
                 difficult = Difficult.easy
             ),
-            answers = answers.shuffled()
+            answers = answers.shuffled().take(4)
         ),
 
 

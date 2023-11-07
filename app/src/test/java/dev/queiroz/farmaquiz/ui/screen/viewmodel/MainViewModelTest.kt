@@ -1,3 +1,7 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
+package dev.queiroz.farmaquiz.ui.screen.viewmodel
+
 import dev.queiroz.farmaquiz.data.datasource.firestore.FirestoreQuizDataSource
 import dev.queiroz.farmaquiz.data.repository.CategoryRepository
 import dev.queiroz.farmaquiz.data.repository.CategoryScoreRepository
@@ -6,10 +10,9 @@ import dev.queiroz.farmaquiz.data.repository.UserPreferencesDataStoreRepository
 import dev.queiroz.farmaquiz.model.Player
 import dev.queiroz.farmaquiz.model.ThemeMode
 import dev.queiroz.farmaquiz.model.UserPreferences
-import dev.queiroz.farmaquiz.ui.screen.viewmodel.HomeState
-import dev.queiroz.farmaquiz.ui.screen.viewmodel.MainViewModel
 import dev.queiroz.farmaquiz.utils.TestDispatcherProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -68,10 +71,8 @@ class MainViewModelTest {
     }
 
     @Test
-    fun onFinishWelcomeScreen_shouldUpdateTheUserPreferences() = runTest {
+    fun onFinishWelcomeScreen_shouldUpdateTheUserPreferences() = runBlocking {
         mainViewModel.onFinishWelcomeScreen(userName)
-        advanceUntilIdle()
-
         verify(userPreferencesRepository, atMost(2)).updateUserPreferences(
             userPreferences = UserPreferences(
                 userName = userName,
