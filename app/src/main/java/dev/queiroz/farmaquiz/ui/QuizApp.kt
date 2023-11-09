@@ -41,6 +41,7 @@ import dev.queiroz.farmaquiz.ui.screen.viewmodel.MainViewModel
 import dev.queiroz.farmaquiz.ui.screen.quizgame.QuizGameViewModel
 import dev.queiroz.farmaquiz.ui.screen.welcome.WelcomeScreen
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
+import dev.queiroz.farmaquiz.utils.LocalNavController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -55,7 +56,6 @@ private sealed interface QuizAppState {
     object Loaded : QuizAppState
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizApp() {
     val mainViewModel = hiltViewModel<MainViewModel>()
@@ -119,7 +119,7 @@ fun QuizApp() {
                 },
                 dynamicColor = userPreferences!!.themeMode == ThemeMode.DYNAMIC
             ) {
-                val navHostController = rememberNavController()
+                val navHostController = LocalNavController.current
                 val navBackStack by navHostController.currentBackStackEntryAsState()
                 val allScreens = remember { allTabScreens }
                 val currentScreen =

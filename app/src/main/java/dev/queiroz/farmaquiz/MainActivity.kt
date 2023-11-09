@@ -6,10 +6,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dev.queiroz.farmaquiz.ui.QuizApp
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
+import dev.queiroz.farmaquiz.utils.LocalNavController
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -26,7 +31,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.surface
                 ) {
-                    QuizApp()
+                    val navController = rememberNavController()
+                    CompositionLocalProvider(LocalNavController provides navController) {
+                        QuizApp()
+                    }
                 }
             }
         }
