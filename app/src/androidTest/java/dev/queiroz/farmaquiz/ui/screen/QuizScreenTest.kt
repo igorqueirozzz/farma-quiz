@@ -11,7 +11,6 @@ import dev.queiroz.farmaquiz.constants.TestTags.quizScreenLoading
 import dev.queiroz.farmaquiz.data.datasource.dummy.CategoriesDummy
 import dev.queiroz.farmaquiz.ui.screen.quizgame.QuizGameState
 import dev.queiroz.farmaquiz.ui.screen.quizgame.QuizScreen
-import kotlinx.coroutines.flow.flow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
