@@ -148,7 +148,10 @@ fun QuizGame(
     }
 
     val coroutineScope = rememberCoroutineScope()
-    var showExplicationDialog by remember { mutableStateOf(false) }
+    var showExplicationDialog = remember { mutableStateOf(false) }
+    var explicationText by remember {
+        mutableStateOf("")
+    }
     var showExitGameDialog by remember { mutableStateOf(false) }
 
     BackHandler {
@@ -215,31 +218,35 @@ fun QuizGame(
             }
         },
     ) { innerPadding ->
+
+        when {
+            showExplicationDialog.value -> {
+                val containerColor =
+                    if (selectedAnswer?.isCorrect == true) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                val contentColor = Color.White
+                QuizDialog(
+                    title = stringResource(id = R.string.explication),
+                    text = explicationText,
+                    onDismiss = { showExplicationDialog.value = false },
+                    onConfirm = { showExplicationDialog.value = false },
+                    containerColor = containerColor,
+                    contentColor = contentColor,
+                    showCancelButton = false
+                )
+            }
+        }
+
         HorizontalPager(
             state = pagerState,
             userScrollEnabled = false,
             modifier = Modifier
                 .padding(innerPadding)
         ) {
-            val scrollState = rememberScrollState()
-
 
             if (questionsWithAnswers.isNotEmpty()) {
                 val question = questionsWithAnswers[it]
-                if (showExplicationDialog) {
-                    val containerColor =
-                        if (selectedAnswer?.isCorrect == true) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                    val contentColor = Color.White
-                    QuizDialog(
-                        title = stringResource(id = R.string.explication),
-                        text = question.question.explication,
-                        onDismiss = { showExplicationDialog = false },
-                        onConfirm = { showExplicationDialog = false },
-                        containerColor = containerColor,
-                        contentColor = contentColor,
-                        showCancelButton = false
-                    )
-                }
+
+
                 if (showExitGameDialog) {
 
                     QuizDialog(
@@ -260,7 +267,11 @@ fun QuizGame(
                             onSelectAnswer(answer, question.question)
                         }
                     },
-                    onSeeExplicationClick = { showExplicationDialog = true },
+                    onSeeExplicationClick = {
+                        explicationText = question.question.explication
+                        showExplicationDialog.value = true
+
+                    },
                     modifier = modifier
                         .padding(
                             horizontal = 16.dp
