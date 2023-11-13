@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Games
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.PieChart
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -40,4 +41,10 @@ object Settings : QuizDestination {
     override val icon: ImageVector = Icons.Rounded.Settings
 }
 
-val allTabScreens = listOf(Home, Statistics, Settings)
+object About : QuizDestination{
+    override val route: String = "about"
+    override val name: String = "Sobre"
+    override val icon: ImageVector = Icons.Rounded.Info
+}
+
+val allTabScreens = listOf(Home, Statistics, Settings, About)

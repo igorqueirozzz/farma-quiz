@@ -19,12 +19,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import dev.queiroz.farmaquiz.model.CategoryWithCategoryScore
 import dev.queiroz.farmaquiz.model.UserPreferences
+import dev.queiroz.farmaquiz.ui.About
 import dev.queiroz.farmaquiz.ui.Home
 import dev.queiroz.farmaquiz.ui.QuizGame
 import dev.queiroz.farmaquiz.ui.Settings
 import dev.queiroz.farmaquiz.ui.Statistics
 import dev.queiroz.farmaquiz.ui.navigateSingleTop
 import dev.queiroz.farmaquiz.ui.navigateSingleTopWithStringArg
+import dev.queiroz.farmaquiz.ui.screen.about.AboutScreen
 import dev.queiroz.farmaquiz.ui.screen.home.HomeScreen
 import dev.queiroz.farmaquiz.ui.screen.viewmodel.MainViewModel
 import dev.queiroz.farmaquiz.ui.screen.quizgame.QuizGameViewModel
@@ -145,6 +147,10 @@ fun QuizNavHost(
                     CircularProgressIndicator()
                 }
             }
+        }
+
+        composable(route = About.route){
+            AboutScreen(modifier = Modifier.fillMaxSize())
         }
     }
 }
