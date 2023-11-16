@@ -2,6 +2,7 @@ package dev.queiroz.farmaquiz.ui.screen.welcome
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
@@ -10,15 +11,23 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -48,7 +58,7 @@ import dev.queiroz.farmaquiz.ui.screen.quizgame.QuizDialog
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun WelcomeScreen(
     onUserPassWelcomeScreen: (String) -> Unit,
@@ -129,17 +139,27 @@ fun WelcomeScreen(
     }
 
     Scaffold(modifier = modifier) { innerPadding ->
-        HorizontalPager(
-            modifier = Modifier.padding(innerPadding),
-            state = pageState,
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
 
-            ) { pageIndex ->
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.primary
-            ) {
-                screens[pageIndex].invoke()
+            HorizontalPager(
+                state = pageState,
+
+                ) { pageIndex ->
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.primary
+                ) {
+                    screens[pageIndex].invoke()
+                }
             }
+
+            PageIndicator(
+                pages = screens,
+                currentPage = pageState.currentPage,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .offset(y = (-30).dp)
+            )
         }
     }
 
@@ -257,6 +277,31 @@ fun WelcomeScreenMessage(
 
 
 @Composable
+fun PageIndicator(pages: List<Any>, currentPage: Int, modifier: Modifier = Modifier) {
+    LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        items(items = pages) {
+            Indicator(isSelected = pages.indexOf(it) == currentPage)
+        }
+    }
+}
+
+@Composable
+fun Indicator(isSelected: Boolean, modifier: Modifier = Modifier) {
+
+    val width by
+    animateDpAsState(targetValue = if (isSelected) 30.dp else 10.dp, label = "indicatorAnim")
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .width(width)
+            .height(10.dp)
+            .background(color = MaterialTheme.colorScheme.onPrimary)
+
+    )
+}
+
+
+@Composable
 @Preview(showSystemUi = true)
 fun WelcomeScreenItemOnePreview() {
     FarmaQuizTheme {
@@ -284,5 +329,13 @@ fun WelcomeScreenItemTwoPreview() {
 fun WelcomeScreen() {
     FarmaQuizTheme {
         WelcomeScreen(modifier = Modifier.fillMaxSize(), onUserPassWelcomeScreen = {})
+    }
+}
+
+@Composable
+@Preview
+fun PageIndicatorPreview() {
+    FarmaQuizTheme {
+        PageIndicator(pages = arrayListOf(0, 1, 2,3,4,5,6), currentPage = 0)
     }
 }
