@@ -2,6 +2,8 @@
 
 package dev.queiroz.farmaquiz.ui.screen.quizgame
 
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -20,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Report
@@ -47,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,7 +63,6 @@ import dev.queiroz.farmaquiz.model.Answer
 import dev.queiroz.farmaquiz.model.Category
 import dev.queiroz.farmaquiz.model.Question
 import dev.queiroz.farmaquiz.model.QuestionWithAnswers
-
 import dev.queiroz.farmaquiz.ui.components.QuizGameAppBar
 import dev.queiroz.farmaquiz.ui.components.QuizGameContent
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
@@ -143,6 +144,7 @@ fun QuizGame(
     onFinishGame: () -> Unit,
     onExitGame: () -> Unit
 ) {
+    val context = LocalContext.current
     val pagerState = rememberPagerState {
         questionsWithAnswers.size
     }
@@ -185,7 +187,16 @@ fun QuizGame(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = { /*TODO*/ }) {
+                TextButton(onClick = {
+
+                    val reportErrorIntent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = Uri.parse("mailto:")
+                        putExtra(Intent.EXTRA_EMAIL, arrayOf("igorqueirozdev@gmail.com"))
+                        putExtra(Intent.EXTRA_SUBJECT, "Erro questão ID: ${questionsWithAnswers[pagerState.currentPage].question.id}")
+                        putExtra(Intent.EXTRA_TEXT, "*** Descreva o erro abaixo ***")
+                    }
+                    context.startActivity(reportErrorIntent)
+                }) {
                     Icon(
                         imageVector = Icons.Rounded.Report,
                         contentDescription = null,

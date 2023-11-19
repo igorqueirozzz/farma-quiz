@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -36,7 +35,6 @@ import co.yml.charts.ui.piechart.models.PieChartConfig
 import co.yml.charts.ui.piechart.models.PieChartData
 import dev.queiroz.farmaquiz.R
 import dev.queiroz.farmaquiz.model.CategoryWithCategoryScore
-import dev.queiroz.farmaquiz.ui.Statistics
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
 
 
@@ -130,7 +128,8 @@ fun ExperienceByCategoryChart(
 
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween) {
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
         PieChart(
             modifier = Modifier
                 .width(200.dp)
@@ -145,7 +144,8 @@ fun ExperienceByCategoryChart(
                 Row(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Text(
                         text = item.category.name,
                         modifier = Modifier
@@ -165,7 +165,7 @@ fun ExperienceByCategoryChart(
                             color = Color.White,
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                             maxLines = 1
-                            )
+                        )
                     }
                 }
             }

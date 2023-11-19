@@ -1,10 +1,11 @@
 package dev.queiroz.farmaquiz.ui.screen.home
 
-import androidx.compose.foundation.background
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -19,9 +20,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -42,11 +43,12 @@ fun HomeScreen(
     onMiscellaneousClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isContentVisible by rememberSaveable { mutableStateOf(state is HomeState.LoadedState) }
     when (state) {
         is HomeState.LoadedState -> {
             var totalOfExperiencePoints by remember { mutableIntStateOf(2) }
             val categoriesScoresFlow = state.categoriesScores
-            LaunchedEffect(key1 = categoriesScoresFlow){
+            LaunchedEffect(key1 = categoriesScoresFlow) {
                 categoriesScoresFlow?.collectLatest { categoryScore ->
                     totalOfExperiencePoints = categoryScore.sumOf { it.categoryScore.score }
                 }
@@ -58,37 +60,75 @@ fun HomeScreen(
                     .testTag(Home.name)
             ) {
 
-                UserGreeting(
-                    userName = state.userName
-                )
+                if (!isContentVisible) {
+                    LaunchedEffect(Unit) {
+                        isContentVisible = true
+                    }
+                }
 
-                ExperienceCard(
-                    experiencePoints = totalOfExperiencePoints,
-                    modifier = Modifier.padding(vertical = 16.dp)
-                )
+                AnimatedVisibility(
+                    visible = isContentVisible,
+                    enter = scaleIn()
+                ) {
+                    UserGreeting(
+                        userName = state.userName
+                    )
+                }
 
-                Text(
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    text = stringResource(R.string.practice_more),
-                    style = MaterialTheme.typography.titleLarge
-                )
-                DailyCard(
-                    modifier = Modifier.clickable { onMiscellaneousClick() }
-                )
+                AnimatedVisibility(
+                    visible = isContentVisible,
+                    enter = scaleIn(
+                        animationSpec = tween(delayMillis = 100)
+                    )
+                ) {
+                    ExperienceCard(
+                        experiencePoints = totalOfExperiencePoints,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                }
 
-                Text(
-                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
-                    text = stringResource(R.string.keep_studying),
-                    style = MaterialTheme.typography.titleLarge
-                )
+                AnimatedVisibility(
+                    visible = isContentVisible,
+                    enter = scaleIn(
+                        animationSpec = tween(delayMillis = 100)
+                    )
+                ) {
+                    Column {
+                        Text(
+                            modifier = Modifier.padding(bottom = 8.dp),
+                            text = stringResource(R.string.practice_more),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        DailyCard(
+                            modifier = Modifier.clickable { onMiscellaneousClick() }
+                        )
+                    }
+                }
+
 
                 val categories = state.categories?.collectAsState(emptyList())
 
-                CategoryCardList(
-                    modifier = Modifier.height(500.dp),
-                    categories = categories?.value ?: emptyList(),
-                    onItemClick = onCategorySelected
-                )
+                AnimatedVisibility(
+                    visible = isContentVisible,
+                    enter = slideInHorizontally(
+                        initialOffsetX = { it * -1 },
+                        animationSpec = tween(delayMillis = 250)
+                    )
+                ) {
+                    Column {
+                        Text(
+                            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
+                            text = stringResource(R.string.keep_studying),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+
+                        CategoryCardList(
+                            modifier = Modifier.height(500.dp),
+                            categories = categories?.value ?: emptyList(),
+                            onItemClick = onCategorySelected
+                        )
+                    }
+                }
 
             }
         }

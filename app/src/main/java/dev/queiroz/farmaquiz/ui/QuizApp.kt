@@ -201,11 +201,13 @@ fun SplashLoadingScreen(
 fun NavHostController.navigateSingleTop(route: String) {
     this.navigate(route = route) {
         launchSingleTop = true
+        popUpTo(Home.route)
     }
 }
 
 fun NavHostController.navigateSingleTopWithStringArg(route: String, arg: String) {
     this.navigate(route = "$route/$arg") {
         launchSingleTop = true
+        popUpTo(Home.route)
     }
 }

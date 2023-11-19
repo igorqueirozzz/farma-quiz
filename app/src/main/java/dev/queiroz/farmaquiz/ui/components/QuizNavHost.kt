@@ -1,5 +1,8 @@
 package dev.queiroz.farmaquiz.ui.components
 
+import androidx.activity.OnBackPressedDispatcher
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -18,7 +20,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import dev.queiroz.farmaquiz.model.CategoryWithCategoryScore
-import dev.queiroz.farmaquiz.model.UserPreferences
 import dev.queiroz.farmaquiz.ui.About
 import dev.queiroz.farmaquiz.ui.Home
 import dev.queiroz.farmaquiz.ui.QuizGame
@@ -28,14 +29,12 @@ import dev.queiroz.farmaquiz.ui.navigateSingleTop
 import dev.queiroz.farmaquiz.ui.navigateSingleTopWithStringArg
 import dev.queiroz.farmaquiz.ui.screen.about.AboutScreen
 import dev.queiroz.farmaquiz.ui.screen.home.HomeScreen
-import dev.queiroz.farmaquiz.ui.screen.viewmodel.MainViewModel
 import dev.queiroz.farmaquiz.ui.screen.quizgame.QuizGameViewModel
 import dev.queiroz.farmaquiz.ui.screen.quizgame.QuizScreen
 import dev.queiroz.farmaquiz.ui.screen.settings.SettingsScreen
 import dev.queiroz.farmaquiz.ui.screen.statistics.StatisticsScreen
 import dev.queiroz.farmaquiz.ui.screen.viewmodel.HomeState
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
+import dev.queiroz.farmaquiz.ui.screen.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -46,13 +45,16 @@ fun QuizNavHost(
     modifier: Modifier = Modifier,
     onRequestChangeAppBar: (Boolean) -> Unit = {}
 ) {
-
     NavHost(
         modifier = modifier,
         navController = navController,
         startDestination = Home.route
     ) {
-        composable(route = Home.route) {
+        composable(
+            route = Home.route,
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+        ) {
             onRequestChangeAppBar(true)
             var state by remember {
                 mutableStateOf<HomeState>(HomeState.LoadingState)
@@ -60,28 +62,32 @@ fun QuizNavHost(
             val stateFlow = remember {
                 mainViewModel.state
             }
-            LaunchedEffect(key1 = stateFlow){
+            LaunchedEffect(key1 = stateFlow) {
                 stateFlow.collectLatest {
                     state = it
                 }
             }
 
-                HomeScreen(
-                    state = state,
-                    onCategorySelected = {
-                        navController.navigateSingleTopWithStringArg(
-                            route = QuizGame.route,
-                            arg = it.id
-                        )
-                    },
-                    onMiscellaneousClick = {
-                        navController.navigateSingleTop(route = QuizGame.route)
-                    }
-                )
+            HomeScreen(
+                state = state,
+                onCategorySelected = {
+                    navController.navigateSingleTopWithStringArg(
+                        route = QuizGame.route,
+                        arg = it.id
+                    )
+                },
+                onMiscellaneousClick = {
+                    navController.navigateSingleTop(route = QuizGame.route)
+                }
+            )
 
         }
 
-        composable(route = Statistics.route) {
+        composable(
+            route = Statistics.route,
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+        ) {
             onRequestChangeAppBar(true)
             val scoresFlow = remember {
                 mainViewModel.categoriesWithScores
@@ -89,7 +95,7 @@ fun QuizNavHost(
             var scores by remember {
                 mutableStateOf<List<CategoryWithCategoryScore>>(emptyList())
             }
-            LaunchedEffect(key1 = scoresFlow){
+            LaunchedEffect(key1 = scoresFlow) {
                 scoresFlow.collectLatest {
                     scores = it
                 }
@@ -97,7 +103,11 @@ fun QuizNavHost(
             StatisticsScreen(scores = scores)
         }
 
-        composable(route = QuizGame.routeWithArg) {
+        composable(
+            route = QuizGame.routeWithArg,
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+        ) {
             onRequestChangeAppBar(false)
             val state by quizGameViewModel.gameState.collectAsState()
             QuizScreen(
@@ -114,7 +124,11 @@ fun QuizNavHost(
             )
         }
 
-        composable(route = QuizGame.route) {
+        composable(
+            route = QuizGame.route,
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+        ) {
             onRequestChangeAppBar(false)
             val state by quizGameViewModel.gameState.collectAsState()
             QuizScreen(
@@ -131,7 +145,11 @@ fun QuizNavHost(
             )
         }
 
-        composable(route = Settings.route) {
+        composable(
+            route = Settings.route,
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+        ) {
             val userPreferences by mainViewModel.userPreferencesFlow.collectAsState(initial = null)
             if (userPreferences != null) {
                 SettingsScreen(
@@ -149,7 +167,10 @@ fun QuizNavHost(
             }
         }
 
-        composable(route = About.route){
+        composable(
+            route = About.route, enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+        ) {
             AboutScreen(modifier = Modifier.fillMaxSize())
         }
     }
