@@ -42,4 +42,5 @@
     <string name="your_experience_by_category">Sua experiência por categoria</string>
     <string name="no_information_found">Nenhuma informação encontrada.</string>
     <string name="daily_questions">Perguntas Diárias</string>
+    <string name="msg_experience_chart">Representa quais categorias você possui mais questões respondidas corretamente.</string>
 </resources>

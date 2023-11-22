@@ -36,6 +36,7 @@ import co.yml.charts.ui.piechart.models.PieChartData
 import dev.queiroz.farmaquiz.R
 import dev.queiroz.farmaquiz.model.CategoryWithCategoryScore
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -88,32 +89,32 @@ fun ExperienceByCategoryChart(
         Color(0xFFFF4B91),
         Color(0xFFFF7676),
         Color(0xFFFFCD4B),
-        Color(0xFFA6FF96),
+        Color(0xFF4A7044),
         Color(0xFF82A0D8),
         Color(0xFFBC7AF9),
         Color(0xFFFFA1F5),
         Color(0xFF008000),
         Color(0xFF808080),
         Color(0xFFFFC0CB),
-        Color(0xFFFFFFE0),
-        Color(0xFFADD8E6),
-        Color(0xFF7FFFD4),
-        Color(0xFF98FB98),
+        Color(0xFF5C5C33),
+        Color(0xFF5C747C),
+        Color(0xFF376B5A),
+        Color(0xFF5B965B),
         Color(0xFFFFD700),
         Color(0xFF9400D3),
         Color(0xFF00BFFF),
         Color(0xFF008080),
-        Color(0xFFFFFF99)
+        Color(0xFF3C3C24)
     )
 
 
-    val totalOfScores = scores.sumOf { it.categoryScore.score }
+    val totalOfScores = scores.sumOf { it.categoryScore.score }.toFloat()
 
     val pieChartData =
         PieChartData(plotType = PlotType.Pie, slices = scores.mapIndexed { index, value ->
             PieChartData.Slice(
                 label = value.category.name,
-                value = ((100 / totalOfScores) * value.categoryScore.score).toFloat(),
+                value = ((value.categoryScore.score.toFloat() / totalOfScores) * 100 ),
                 color = colors[index]
             )
         })
@@ -126,50 +127,57 @@ fun ExperienceByCategoryChart(
         backgroundColor = Color.Transparent
     )
 
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        PieChart(
-            modifier = Modifier
-                .width(200.dp)
-                .height(200.dp), pieChartData, pieChartConfig
-        )
-
-        LazyColumn(
-            modifier = Modifier.height(200.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+    Column(modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            itemsIndexed(items = scores) { index, item ->
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = item.category.name,
-                        modifier = Modifier
-                            .padding(end = 6.dp)
-                            .weight(2f),
-                        maxLines = 1
-                    )
-                    Box(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .background(colors[index])
-                            .size(30.dp),
-                        contentAlignment = Alignment.Center
+            PieChart(
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(200.dp), pieChartData, pieChartConfig
+            )
+
+            LazyColumn(
+                modifier = Modifier.height(200.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                itemsIndexed(items = scores) { index, item ->
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "${(100 / totalOfScores) * item.categoryScore.score}%",
-                            color = Color.White,
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                            text = item.category.name,
+                            modifier = Modifier
+                                .padding(end = 6.dp)
+                                .weight(2f),
                             maxLines = 1
                         )
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(colors[index])
+                                .size(30.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "${((item.categoryScore.score.toFloat() / totalOfScores) * 100).roundToInt()}%",
+                                color = Color.White,
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                maxLines = 1
+                            )
+                        }
                     }
                 }
             }
         }
+        Text(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            text = stringResource(R.string.msg_experience_chart),
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }
 
