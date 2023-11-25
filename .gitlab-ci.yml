@@ -1,4 +1,4 @@
-image: androidSdk/android-30
+image: androidsdk/android-30
 
 before_script:
   - echo $ANDROID_KEYSTORE_PROPERTIES | base64 -d > app/keystore.properties
