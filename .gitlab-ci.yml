@@ -1,0 +1,51 @@
+image: androidSdk/android-30
+
+before_script:
+  - echo $ANDROID_KEYSTORE_PROPERTIES | base64 -d > app/keystore.properties
+  - echo $ANDROID_KEYSTORE_FILE | base64 -d > app/farma_quiz_keystore.jks
+  - echo $GOOGLE_PLAY_SERVICE_ACCOUNT_FILE | base64 -d > app/farma-quiz-406212-7fcf675014c9.json
+  - echo $GOOGLE_SERVICE_FILE | base64 -d > app/google-services.json
+  - export GRADLE_USER_HOME=`pwd`./gradle
+
+
+cache:
+  key: gradle
+  paths:
+    - ~./gradle/caches
+    - ~./gradle/wrapper
+
+
+stages:
+  - lint
+  - test
+  - build
+  - internal
+  - alpha
+
+lint:
+  stage: lint
+  script:
+    -./gradlew lint
+
+test:
+  stage: test
+  script:
+    - ./gradlew test
+
+build:
+  stage: build
+  script:
+    - ./gradlew assembleRelease
+
+internal:
+  stage: internal
+  environment: internal
+  script:
+    - ./gradlew publishReleaseApps
+
+alpha:
+  stage: alpha
+  environment: alpha
+  when: manual
+  script:
+    - ./gradlew promoteArtifact --promote-track alpha
