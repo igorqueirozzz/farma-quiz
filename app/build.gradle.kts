@@ -1,10 +1,20 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
+    id("com.github.triplet.play")
 }
+
+val keystorePropertiesFile = rootProject.file("app/keystore.properties")
+val keyStoreProperties = Properties()
+keyStoreProperties.load(FileInputStream(keystorePropertiesFile))
+
+
 
 android {
     namespace = "dev.queiroz.farmaquiz"
@@ -14,8 +24,8 @@ android {
         applicationId = "dev.queiroz.farmaquiz"
         minSdk = 26
         targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "1.0.1-Beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -24,12 +34,21 @@ android {
     }
 
     buildTypes {
+        signingConfigs {
+            create("release") {
+                keyAlias = keyStoreProperties["keyAlias"] as String
+                keyPassword = keyStoreProperties["keyPassword"] as String
+                storeFile = file(keyStoreProperties["storeFile"] as String)
+                storePassword = keyStoreProperties["storePassword"] as String
+            }
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
+            signingConfig = signingConfigs["release"]
+
         }
     }
     compileOptions {
@@ -50,6 +69,11 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+play {
+    defaultToAppBundles.set(true)
+    serviceAccountCredentials.set(file("farma-quiz-406212-7fcf675014c9.json"))
 }
 
 dependencies {
