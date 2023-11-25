@@ -47,8 +47,6 @@ before_script:
   # Not necessary, but just for surity
   - chmod +x ./gradlew
 
-
-before_script:
   - echo $ANDROID_KEYSTORE_PROPERTIES | base64 -d > app/keystore.properties
   - echo $ANDROID_KEYSTORE_FILE | base64 -d > app/farma_quiz_keystore.jks
   - echo $GOOGLE_PLAY_SERVICE_ACCOUNT_FILE | base64 -d > app/farma-quiz-406212-7fcf675014c9.json
