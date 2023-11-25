@@ -5,3 +5,13 @@ plugins {
     id("com.google.dagger.hilt.android") version "2.44" apply false
     id("com.google.gms.google-services") version "4.4.0" apply false
 }
+
+buildscript {
+    repositories {
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
+    }
+
+    dependencies {
+        classpath("com.github.triplet.gradle:play-publisher:4.0.0-SNAPSHOT")
+    }
+}
