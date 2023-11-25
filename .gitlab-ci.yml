@@ -25,7 +25,7 @@ stages:
 lint:
   stage: lint
   script:
-    -./gradlew lint
+    - ./gradlew lint
 
 test:
   stage: test
