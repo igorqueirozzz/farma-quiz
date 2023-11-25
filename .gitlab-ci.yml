@@ -1,4 +1,4 @@
-image: androidsdk/android-31
+image: eclipse-temurin:17-jdk-jammy
 
 before_script:
   - echo $ANDROID_KEYSTORE_PROPERTIES | base64 -d > app/keystore.properties
