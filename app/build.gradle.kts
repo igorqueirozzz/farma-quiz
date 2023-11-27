@@ -24,7 +24,7 @@ android {
         applicationId = "dev.queiroz.farmaquiz"
         minSdk = 26
         targetSdk = 33
-        versionCode = 4
+        versionCode = 5
         versionName = "1.0.1-Beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -87,6 +87,7 @@ dependencies {
     val ychartsVersion = "2.1.0"
     val mockitoVersion = "3.2.0"
     val coroutinesTestVersion = "1.5.0"
+    val coilVersion = "2.5.0"
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -123,6 +124,8 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx:$firestoreVersion")
     // YCharts
     implementation("co.yml:ycharts:$ychartsVersion")
+    // Coil
+    implementation("io.coil-kt:coil-compose:$coilVersion")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoVersion")

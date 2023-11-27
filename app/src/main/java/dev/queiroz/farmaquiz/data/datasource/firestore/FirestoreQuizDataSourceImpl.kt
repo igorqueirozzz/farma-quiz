@@ -13,6 +13,7 @@ import dev.queiroz.farmaquiz.data.datasource.firestore.Collections.QUESTIONS
 import dev.queiroz.farmaquiz.data.datasource.firestore.QuestionFields.CATEGORY_ID
 import dev.queiroz.farmaquiz.data.datasource.firestore.QuestionFields.DIFFICULT
 import dev.queiroz.farmaquiz.data.datasource.firestore.QuestionFields.EXPLICATION
+import dev.queiroz.farmaquiz.data.datasource.firestore.QuestionFields.IMAGE_RESOURCE
 import dev.queiroz.farmaquiz.data.datasource.firestore.QuestionFields.QUESTION
 import dev.queiroz.farmaquiz.data.repository.AnswerRepository
 import dev.queiroz.farmaquiz.data.repository.CategoryRepository
@@ -72,12 +73,14 @@ class FirestoreQuizDataSourceImpl(
                         val difficult = Difficult.valueOf(documentSnapshot.getString(DIFFICULT)!!)
                         val explication = documentSnapshot.getString(EXPLICATION)!!
                         val questionText = documentSnapshot.getString(QUESTION)!!
+                        val imageResource = documentSnapshot.getString(IMAGE_RESOURCE)
                         Question(
                             id = id,
                             question = questionText,
                             categoryId = categoryId,
                             explication = explication,
-                            difficult = difficult
+                            difficult = difficult,
+                            imageResource = imageResource
                         )
                     }
 

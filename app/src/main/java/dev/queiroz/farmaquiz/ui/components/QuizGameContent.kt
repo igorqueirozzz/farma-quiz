@@ -3,8 +3,6 @@ package dev.queiroz.farmaquiz.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.fadeIn
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,16 +43,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import dev.queiroz.farmaquiz.R
 import dev.queiroz.farmaquiz.constants.TestTags.answerOptionCard
 import dev.queiroz.farmaquiz.constants.TestTags.answersOptionsList
 import dev.queiroz.farmaquiz.data.datasource.dummy.CategoriesDummy
-import dev.queiroz.farmaquiz.extensions.getDrawableIdentifier
 import dev.queiroz.farmaquiz.model.Answer
 import dev.queiroz.farmaquiz.model.QuestionWithAnswers
 import dev.queiroz.farmaquiz.ui.theme.FarmaQuizTheme
@@ -89,19 +87,19 @@ fun QuizGameContent(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    verticalArrangement = Arrangement.Center
                 ) {
-                    val hasImage = questionWithAnswers.question.imageResource != null
+                    val hasImage = !questionWithAnswers.question.imageResource.isNullOrEmpty()
                     if (hasImage) {
-                        Image(
+                        AsyncImage(
                             modifier = Modifier
                                 .width(200.dp)
-                                .height(200.dp),
-                            painter = painterResource(
-                                id = LocalContext.current.getDrawableIdentifier(
-                                    questionWithAnswers.question.imageResource!!
-                                )
-                            ),
+                                .height(200.dp)
+                                .align(Alignment.CenterHorizontally),
+                            model = ImageRequest
+                                .Builder(LocalContext.current)
+                                .data(questionWithAnswers.question.imageResource)
+                                .crossfade(true)
+                                .build(),
                             contentDescription = stringResource(R.string.imageContent),
                             contentScale = ContentScale.Crop
                         )

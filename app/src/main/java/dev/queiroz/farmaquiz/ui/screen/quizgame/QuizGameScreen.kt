@@ -251,6 +251,7 @@ fun QuizGame(
             state = pagerState,
             userScrollEnabled = false,
             modifier = Modifier
+
                 .padding(innerPadding)
         ) {
 
@@ -283,7 +284,8 @@ fun QuizGame(
                         showExplicationDialog.value = true
 
                     },
-                    modifier = modifier
+                    modifier = Modifier
+                        .fillMaxSize()
                         .padding(
                             horizontal = 16.dp
                         )

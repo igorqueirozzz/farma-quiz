@@ -16,6 +16,7 @@ object QuestionFields {
     const val CATEGORY_ID = "categoryId"
     const val DIFFICULT = "difficult"
     const val EXPLICATION = "explication"
+    const val IMAGE_RESOURCE = "imageResource"
 }
 
 object AnswerFields {
