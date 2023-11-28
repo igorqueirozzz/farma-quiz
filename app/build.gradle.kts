@@ -24,8 +24,8 @@ android {
         applicationId = "dev.queiroz.farmaquiz"
         minSdk = 26
         targetSdk = 33
-        versionCode = 5
-        versionName = "1.0.1-Beta"
+        versionCode = 6
+        versionName = "1.0.0-Beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

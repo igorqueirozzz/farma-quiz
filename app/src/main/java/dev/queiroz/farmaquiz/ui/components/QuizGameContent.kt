@@ -3,6 +3,7 @@ package dev.queiroz.farmaquiz.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,7 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -40,6 +42,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -47,7 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import dev.queiroz.farmaquiz.R
 import dev.queiroz.farmaquiz.constants.TestTags.answerOptionCard
@@ -90,7 +93,7 @@ fun QuizGameContent(
                 ) {
                     val hasImage = !questionWithAnswers.question.imageResource.isNullOrEmpty()
                     if (hasImage) {
-                        AsyncImage(
+                        SubcomposeAsyncImage(
                             modifier = Modifier
                                 .width(200.dp)
                                 .height(200.dp)
@@ -100,6 +103,24 @@ fun QuizGameContent(
                                 .data(questionWithAnswers.question.imageResource)
                                 .crossfade(true)
                                 .build(),
+                            loading = {
+                                CircularProgressIndicator()
+                            },
+                            error = {
+                                Box{
+                                    Card(
+                                        modifier = Modifier.align(Alignment.Center).padding(8.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = MaterialTheme.colorScheme.errorContainer
+                                        )
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.msg_failure_load_image),
+                                            textAlign = TextAlign.Center,
+                                        )
+                                    }
+                                }
+                            },
                             contentDescription = stringResource(R.string.imageContent),
                             contentScale = ContentScale.Crop
                         )

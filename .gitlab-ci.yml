@@ -72,11 +72,13 @@ lint:
   stage: lint
   script:
     - ./gradlew lint
+  only: develop
 
 test:
   stage: test
   script:
     - ./gradlew test
+  only: develop
 
 build:
   stage: build
@@ -88,6 +90,7 @@ internal:
   environment: internal
   script:
     - ./gradlew publishReleaseApps
+  only: develop
 
 alpha:
   stage: alpha
@@ -95,3 +98,4 @@ alpha:
   when: manual
   script:
     - ./gradlew promoteArtifact --promote-track alpha
+  only: develop

@@ -43,4 +43,5 @@
     <string name="no_information_found">Nenhuma informação encontrada.</string>
     <string name="daily_questions">Perguntas Diárias</string>
     <string name="msg_experience_chart">Representa quais categorias você possui mais questões respondidas corretamente.</string>
+    <string name="msg_failure_load_image">"Infelizmente não conseguimos carregar a imagem, por favor verifique sua conexão e tente novamente. "</string>
 </resources>
