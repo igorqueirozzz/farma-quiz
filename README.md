@@ -1,2 +1,2 @@
 # farma quiz
-Test gitlab mirror 2
+Test gitlab mirror
