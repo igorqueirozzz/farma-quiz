@@ -9,4 +9,5 @@ object TestTags {
     const val quizScreenGaming = "quizScreenGaming"
     const val quizScreenFinished = "quizScreenFinished"
     const val categoryCardItem = "categoryCardItem"
+    const val imageView = "imageView"
 }

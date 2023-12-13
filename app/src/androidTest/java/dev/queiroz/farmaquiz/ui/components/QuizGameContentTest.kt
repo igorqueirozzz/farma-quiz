@@ -15,6 +15,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import dev.queiroz.farmaquiz.constants.TestTags
 import dev.queiroz.farmaquiz.constants.TestTags.answerOptionCard
 import dev.queiroz.farmaquiz.constants.TestTags.answersOptionsList
 import dev.queiroz.farmaquiz.data.datasource.dummy.CategoriesDummy
@@ -58,7 +59,7 @@ class QuizGameContentTest {
         }
 
         composeTestRule
-            .onNodeWithContentDescription("Conteúdo de imagem")
+            .onNodeWithTag(TestTags.imageView)
             .assertIsDisplayed()
     }
 
