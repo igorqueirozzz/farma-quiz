@@ -24,7 +24,7 @@ android {
         applicationId = "dev.queiroz.farmaquiz"
         minSdk = 26
         targetSdk = 33
-        versionCode = 7
+        versionCode = 8
         versionName = "1.0.1-Beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
