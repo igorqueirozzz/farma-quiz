@@ -95,8 +95,8 @@ fun QuizGameContent(
                     if (hasImage) {
                         SubcomposeAsyncImage(
                             modifier = Modifier
-                                .width(200.dp)
-                                .height(200.dp)
+                                .fillMaxWidth()
+                                .height(300.dp)
                                 .align(Alignment.CenterHorizontally),
                             model = ImageRequest
                                 .Builder(LocalContext.current)
@@ -122,7 +122,7 @@ fun QuizGameContent(
                                 }
                             },
                             contentDescription = stringResource(R.string.imageContent),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Fit
                         )
                     }
 
