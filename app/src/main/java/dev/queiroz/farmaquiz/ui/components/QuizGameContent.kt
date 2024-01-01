@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import dev.queiroz.farmaquiz.R
+import dev.queiroz.farmaquiz.constants.TestTags
 import dev.queiroz.farmaquiz.constants.TestTags.answerOptionCard
 import dev.queiroz.farmaquiz.constants.TestTags.answersOptionsList
 import dev.queiroz.farmaquiz.data.datasource.dummy.CategoriesDummy
@@ -64,10 +65,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun QuizGameContent(
     questionWithAnswers: QuestionWithAnswers,
-    selectedAnswer: Answer? = null,
     onItemClick: (Answer) -> Unit,
     onSeeExplicationClick: () -> Unit,
     modifier: Modifier = Modifier,
+    selectedAnswer: Answer? = null,
 ) {
     val scope = rememberCoroutineScope()
     val iconColors = IconButtonDefaults.outlinedIconButtonColors(
@@ -97,7 +98,8 @@ fun QuizGameContent(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(300.dp)
-                                .align(Alignment.CenterHorizontally),
+                                .align(Alignment.CenterHorizontally)
+                                .testTag(tag = TestTags.imageView),
                             model = ImageRequest
                                 .Builder(LocalContext.current)
                                 .data(questionWithAnswers.question.imageResource)
