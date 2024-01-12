@@ -44,5 +44,5 @@
     <string name="daily_questions">Perguntas Diárias</string>
     <string name="msg_experience_chart">Representa quais categorias você possui mais questões respondidas corretamente.</string>
     <string name="msg_failure_load_image">"Infelizmente não conseguimos carregar a imagem, por favor verifique sua conexão e tente novamente. "</string>
-    <string name="correct_answer">Responsta Correta</string>
+    <string name="correct_answer">Resposta Correta</string>
 </resources>
