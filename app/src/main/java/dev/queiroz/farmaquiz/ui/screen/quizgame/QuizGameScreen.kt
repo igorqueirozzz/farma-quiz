@@ -243,7 +243,9 @@ fun QuizGame(
                     containerColor = containerColor,
                     contentColor = contentColor,
                     showCancelButton = false
-                )
+                ){
+                    Text(text = "Resposta Correta: ")
+                }
             }
         }
 
@@ -280,7 +282,7 @@ fun QuizGame(
                         }
                     },
                     onSeeExplicationClick = {
-                        explicationText = question.question.explication
+                        explicationText = it
                         showExplicationDialog.value = true
 
                     },

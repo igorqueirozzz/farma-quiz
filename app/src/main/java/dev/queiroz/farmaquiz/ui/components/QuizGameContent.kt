@@ -66,7 +66,7 @@ import kotlinx.coroutines.launch
 fun QuizGameContent(
     questionWithAnswers: QuestionWithAnswers,
     onItemClick: (Answer) -> Unit,
-    onSeeExplicationClick: () -> Unit,
+    onSeeExplicationClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     selectedAnswer: Answer? = null,
 ) {
@@ -79,6 +79,8 @@ fun QuizGameContent(
     LaunchedEffect(Unit) {
         isVisible = true
     }
+    val correctAnswer = questionWithAnswers.answers.find { it.isCorrect }
+    val explication = "${stringResource(id = R.string.correct_answer)}: ${getLetterOption(questionWithAnswers.answers.indexOf(correctAnswer))}\n\n${questionWithAnswers.question.explication}"
     Box(contentAlignment = Alignment.Center) {
         LazyColumn(
             modifier = modifier
@@ -106,12 +108,16 @@ fun QuizGameContent(
                                 .crossfade(true)
                                 .build(),
                             loading = {
-                                CircularProgressIndicator()
+                                Box(contentAlignment = Alignment.Center){
+                                    CircularProgressIndicator()
+                                }
                             },
                             error = {
                                 Box{
                                     Card(
-                                        modifier = Modifier.align(Alignment.Center).padding(8.dp),
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .padding(8.dp),
                                         colors = CardDefaults.cardColors(
                                             containerColor = MaterialTheme.colorScheme.errorContainer
                                         )
@@ -143,7 +149,7 @@ fun QuizGameContent(
                     answerIndex = questionWithAnswers.answers.indexOf(answer),
                     onItemClick = onItemClick,
                     isSelected = answer == selectedAnswer,
-                    onSeeExplicationClick = onSeeExplicationClick
+                    onSeeExplicationClick = { onSeeExplicationClick(explication) }
                 )
             }
         }
