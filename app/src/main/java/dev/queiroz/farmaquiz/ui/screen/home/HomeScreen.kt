@@ -71,7 +71,7 @@ fun HomeScreen(
                     enter = scaleIn()
                 ) {
                     UserGreeting(
-                        userName = state.userName
+                        userName = state.userName,
                     )
                 }
 

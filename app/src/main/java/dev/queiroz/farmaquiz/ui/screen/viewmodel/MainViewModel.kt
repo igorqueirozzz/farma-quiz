@@ -61,6 +61,7 @@ class MainViewModel @Inject constructor(
     private val _state = MutableStateFlow<HomeState>(HomeState.LoadingState)
     val state: StateFlow<HomeState> = _state.asStateFlow()
 
+
     init {
         viewModelScope.launch(dispatcherProvider.io) {
             userPreferencesRepository
@@ -71,7 +72,7 @@ class MainViewModel @Inject constructor(
                         HomeState.LoadedState(
                             it.userName,
                             categories = categories,
-                            categoriesScores = categoriesWithScores
+                            categoriesScores = categoriesWithScores,
                         )
                     )
                 }

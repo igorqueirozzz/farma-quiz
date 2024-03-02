@@ -243,9 +243,7 @@ fun QuizGame(
                     containerColor = containerColor,
                     contentColor = contentColor,
                     showCancelButton = false
-                ){
-                    Text(text = "Resposta Correta: ")
-                }
+                )
             }
         }
 

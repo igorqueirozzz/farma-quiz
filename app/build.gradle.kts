@@ -24,8 +24,8 @@ android {
         applicationId = "dev.queiroz.farmaquiz"
         minSdk = 26
         targetSdk = 33
-        versionCode = 11
-        versionName = "1.0.0"
+        versionCode = 12
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -77,22 +77,26 @@ play {
 }
 
 dependencies {
-    val lifecycleVersion = "2.6.1"
+    val androidXCoreKtxVersion = "1.12.0"
+    val composeBoomVersion = "2024.02.01"
+    val composeActivityVersion = "1.8.2"
+    val lifecycleVersion = "2.7.0"
     val hiltVersion = "2.44"
-    val navVersion = "2.7.3"
-    val roomVersion = "2.4.1"
+    val hiltComposeNavigationVersion = "1.2.0"
+    val navVersion = "2.7.7"
+    val roomVersion = "2.6.1"
     val datastoreVersion = "1.0.0"
-    val composeLivedataVersion = "1.5.3"
-    val firestoreVersion = "24.8.1"
+    val composeLivedataVersion = "1.6.2"
+    val firestoreVersion = "24.10.3"
     val ychartsVersion = "2.1.0"
     val mockitoVersion = "3.2.0"
-    val coroutinesTestVersion = "1.5.0"
+    val coroutinesTestVersion = "1.6.4"
     val coilVersion = "2.5.0"
 
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
-    implementation("androidx.activity:activity-compose:1.7.2")
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    implementation("androidx.core:core-ktx:$androidXCoreKtxVersion")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
+    implementation("androidx.activity:activity-compose:$composeActivityVersion")
+    implementation(platform("androidx.compose:compose-bom:$composeBoomVersion"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -106,7 +110,7 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata:$composeLivedataVersion")
     // Dagger Hilt
     implementation("com.google.dagger:hilt-android:$hiltVersion")
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    implementation("androidx.hilt:hilt-navigation-compose:$hiltComposeNavigationVersion")
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
     // Material Icons Extended
     implementation("androidx.compose.material:material-icons-extended:1.5.2")
@@ -133,7 +137,7 @@ dependencies {
     testImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:$composeBoomVersion"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation("com.google.dagger:hilt-android-testing:$hiltVersion")
     debugImplementation("androidx.compose.ui:ui-tooling")
