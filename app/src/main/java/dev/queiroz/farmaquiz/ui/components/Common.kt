@@ -72,7 +72,7 @@ fun UserGreeting(userName: String, modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.displayMedium.copy(color = MaterialTheme.colorScheme.primary)
             )
             Text(
-                text = stringResource(R.string.great_to_see_you_again),
+                text = stringResource(R.string.welcome_to) + " " + stringResource(id = R.string.app_name),
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Normal)
             )
         }
@@ -123,7 +123,7 @@ fun CategoryCard(
                             modifier = Modifier
                                 .size(10.dp)
                                 .clip(CircleShape)
-                                .background(color =  MaterialTheme.colorScheme.tertiary)
+                                .background(color = MaterialTheme.colorScheme.tertiary)
 
                         )
 

@@ -42,7 +42,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -145,6 +147,7 @@ fun QuizGameContent(
             }
             items(items = questionWithAnswers.answers) { answer ->
                 QuizAnswerItem(
+                    modifier = Modifier.clip(MaterialTheme.shapes.large),
                     answer = answer,
                     answerIndex = questionWithAnswers.answers.indexOf(answer),
                     onItemClick = onItemClick,
@@ -241,7 +244,7 @@ fun QuizAnswerItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = stringResource(R.string.see_explication))
-                Icon(imageVector = Icons.Rounded.Visibility, contentDescription = null)
+                Icon(modifier = Modifier.padding(start = 1.dp), imageVector = Icons.Rounded.Visibility, contentDescription = null)
             }
         }
     }
