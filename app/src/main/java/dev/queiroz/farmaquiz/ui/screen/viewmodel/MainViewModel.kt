@@ -102,13 +102,13 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun updateDatabase(onUpdateComplete: (Boolean) -> Unit) {
+    fun updateDatabase(currentVersion: String, onUpdateComplete: (Boolean) -> Unit) {
         firestoreQuizDataSource.updateCategoriesWithFirestoreData { success ->
             onUpdateComplete(success)
             viewModelScope.launch {
                 lastUserPreferences?.let {
                     userPreferencesRepository.updateUserPreferences(
-                        userPreferences = it.copy(lastDataUpdate = LocalDate.now())
+                        userPreferences = it.copy(lastDataUpdate = LocalDate.now(), latestVersion = currentVersion)
                     )
                 }
             }

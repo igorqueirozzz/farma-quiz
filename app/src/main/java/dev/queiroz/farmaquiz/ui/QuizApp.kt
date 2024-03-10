@@ -24,6 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -81,11 +82,15 @@ fun QuizApp() {
 
         val today = LocalDate.now()
         val lastUpdateDate = (userPreferences!!.lastDataUpdate ?: LocalDate.now())
-        val daysAfterUpdate = lastUpdateDate.plusDays(30)
-        if (userPreferences!!.isFirstLaunch || today.isAfter(daysAfterUpdate)) {
+        val daysAfterUpdate = lastUpdateDate.plusDays(7)
+        val currentVersion = LocalContext.current.packageManager.getPackageInfo(
+            LocalContext.current.packageName, 0
+        ).versionName
+
+        if (userPreferences!!.isFirstLaunch || today.isAfter(daysAfterUpdate) || currentVersion != userPreferences!!.latestVersion) {
             quizAppState = QuizAppState.UpdatingDataBase
 
-            mainViewModel.updateDatabase { success ->
+            mainViewModel.updateDatabase(currentVersion = currentVersion) { success ->
                 quizAppState = if (success) QuizAppState.Loaded else QuizAppState.UpdateError
             }
 

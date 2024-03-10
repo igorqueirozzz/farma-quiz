@@ -10,4 +10,4 @@ enum class ThemeMode{
     DYNAMIC
 }
 
-data class UserPreferences(var userName: String, var themeMode: ThemeMode, val isFirstLaunch: Boolean, val lastDataUpdate: LocalDate?)
+data class UserPreferences(var userName: String, var themeMode: ThemeMode, val isFirstLaunch: Boolean, val lastDataUpdate: LocalDate?, var latestVersion: String? = null)

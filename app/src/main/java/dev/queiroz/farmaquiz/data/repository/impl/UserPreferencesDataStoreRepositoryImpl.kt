@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import dev.queiroz.farmaquiz.data.repository.UserPreferencesDataStoreRepository
 import dev.queiroz.farmaquiz.data.repository.impl.UserPreferencesDataStoreRepositoryImpl.PreferenceKeys.IS_FIRST_LAUNCH
 import dev.queiroz.farmaquiz.data.repository.impl.UserPreferencesDataStoreRepositoryImpl.PreferenceKeys.LAST_DATA_UPDATE
+import dev.queiroz.farmaquiz.data.repository.impl.UserPreferencesDataStoreRepositoryImpl.PreferenceKeys.LATEST_VERSION
 import dev.queiroz.farmaquiz.data.repository.impl.UserPreferencesDataStoreRepositoryImpl.PreferenceKeys.THEME_MODE
 import dev.queiroz.farmaquiz.data.repository.impl.UserPreferencesDataStoreRepositoryImpl.PreferenceKeys.USER_NAME
 import dev.queiroz.farmaquiz.model.ThemeMode
@@ -31,6 +32,7 @@ class UserPreferencesDataStoreRepositoryImpl(private val dataStore: DataStore<Pr
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val IS_FIRST_LAUNCH = booleanPreferencesKey("is_first_launch")
         val LAST_DATA_UPDATE = stringPreferencesKey("last_launch_date")
+        val LATEST_VERSION = stringPreferencesKey( "latest_version")
     }
 
    override val userPreferencesFlow: Flow<UserPreferences> = dataStore
@@ -52,6 +54,7 @@ class UserPreferencesDataStoreRepositoryImpl(private val dataStore: DataStore<Pr
             preferences[THEME_MODE] = userPreferences.themeMode.toString()
             preferences[IS_FIRST_LAUNCH] = userPreferences.isFirstLaunch
             preferences[LAST_DATA_UPDATE] = (userPreferences.lastDataUpdate ?: LocalDate.now()).toString()
+            preferences[LATEST_VERSION] = userPreferences.latestVersion ?: ""
         }
     }
 
@@ -62,7 +65,8 @@ class UserPreferencesDataStoreRepositoryImpl(private val dataStore: DataStore<Pr
         val isFirstLaunch = preferences[IS_FIRST_LAUNCH] ?: true
         val lastLaunchDateStr = preferences[LAST_DATA_UPDATE]
         val lastLaunchDate = if (!lastLaunchDateStr.isNullOrEmpty()) LocalDate.parse(lastLaunchDateStr) else null
-        return UserPreferences(userName = userName, themeMode = themeMode, isFirstLaunch = isFirstLaunch, lastDataUpdate = lastLaunchDate)
+        val latestVersion = preferences[LATEST_VERSION]
+        return UserPreferences(userName = userName, themeMode = themeMode, isFirstLaunch = isFirstLaunch, lastDataUpdate = lastLaunchDate, latestVersion = latestVersion)
     }
 
 }
