@@ -90,6 +90,7 @@ build:
 internal:
   stage: internal
   environment: internal
+  when: manual
   script:
     - ./gradlew publishReleaseApps
   only: 
